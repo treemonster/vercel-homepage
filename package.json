@@ -8,5 +8,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "sptc": "0.0.22"
   }
 }
