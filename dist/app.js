@@ -7,7 +7,8 @@ http.createServer((req, res)=>{
 */
 process.argv.push(
   '-p'+(process.env.PORT || 3000),
-  '-w'+__dirname+'/app',
-  '-rindex.s',
+  //'-w'+__dirname+'/app',
+  //'-rinxdex.s',
+  '-t',
 )
 require('sptc/bin/sptcd')
