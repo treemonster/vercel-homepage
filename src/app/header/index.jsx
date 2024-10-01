@@ -15,6 +15,7 @@ export async function fetchPayload() {
 }
 
 export default function({payload}) {
+  if(!payload.data) return <&=@/services/LoadingPayload payload={payload} />
   const {data}=payload
   const {readOnly, ...o}=data || {}
   return <div className='__view_scope'>
@@ -41,11 +42,13 @@ function AppHeader(props) {
   return <div className={(isPlaceholder? 'placeholder': 'fixed')}>
     <&=@/services/Container children={<>
 
-    <&=@/services/AppInfo
-      text={text}
-      action='/app/saveHeader'
-      isPlaceholder={isPlaceholder}
-    />
+    <div className='with-back'>
+      <&=@/services/AppInfo
+        text={text}
+        action='/app/saveHeader'
+        isPlaceholder={isPlaceholder}
+      />
+    </div>
 
     <div className='tabs'>
       {

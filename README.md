@@ -1,4 +1,4 @@
 # This project is developing..
 
-https://vercel-homepage-one.vercel.app/
+https://kaze2024.vercel.app/
 

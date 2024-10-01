@@ -1,7 +1,7 @@
 function str2ratio(x) {
   let p=0, n=[341, 170], i=1
   for(let c of x) {
-    let o=c.charCodeAt(i)
+    let o=c.charCodeAt(0)
     p=p+(o | n[i++%2])
     p=p & 0xff
   }

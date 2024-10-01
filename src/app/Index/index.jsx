@@ -61,21 +61,31 @@ export default function(props) {
   }, [payload.data])
 
   const fetches=React.useRef({'': true}).current
+  const [fetchHead, set_fetchHead]=React.useState(false)
   React.useEffect(_=>{
     const k=confirmSearchText
     if(fetches[k] || heads._[k]) return;
     fetches[k]=true
+    set_fetchHead(true)
     getFirstPageData(confirmSearchText).then(data=>{
       setHead(data)
     }, _=>{
       delete fetches[confirmSearchText]
+    }).then(_=>{
+      set_fetchHead(false)
     })
   }, [confirmSearchText])
 
   const data=heads._[searchText]
   return <div className='__view_scope'>
     <CreateBtn />
-    <RenderList firstPageData={data} />
+    {
+      fetchHead?
+        <div className='loading-panel'>
+          <&=@/components/Loading />
+        </div>:
+        <RenderList firstPageData={data} />
+    }
   </div>
 }
 
@@ -164,11 +174,7 @@ function LoadMore(props) {
   if(isEnd) return null
   return <div className='load-more'>
     {isLoading?
-      <&=@/components/Icon
-        className='bi-sun'
-        isRotating
-        size='large'
-      />:
+      <&=@/components/Loading />:
       <&=@/components/Icon
         onClick={_=>{
           loadNextPage({lastValidId, lastPayloadId})

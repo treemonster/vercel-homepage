@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "serve": "node build/index.js serve",
-    "build": "node build/index.js build",
     "dev": "node build/index.js dev",
+    "build": "node build/index.js build",
+    "v-build": "bash build-vercel/build.sh",
     "v-prod": "sptcd -rindex.s -wserver -n2"
   },
   "dependencies": {
