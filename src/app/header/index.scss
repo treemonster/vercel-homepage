@@ -1,0 +1,114 @@
+.__view_scope{
+  .fixed, .placeholder{
+    width: 100%;
+    min-height: 180px;
+    z-index: 10;
+    padding-bottom: 20px;
+  }
+  .fixed{
+    position: fixed;
+    top: 0;
+    background: #fff;
+    box-shadow: 0 0 50px #333;
+  }
+  .placeholder{
+    position: relative;
+  }
+  .tabs{
+    display: flex;
+    margin: 0 20px;
+    align-items: center;
+    height: 60px;
+    line-height: 60px;
+    .left{
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      max-width: 100%;
+      .left-info{
+        background: #eee;
+        border-radius: 20px 20px 0 0;
+        a{
+          color: #000;
+          text-decoration: none;
+          font-size: 32px;
+          margin: 0 16px;
+          white-space: nowrap;
+          &.active{
+            font-weight: bold;
+          }
+          &:after{
+            content: '|';
+            color: #ddd;
+            position: relative;
+            left: 20px;
+            cursor: none;
+          }
+          &:last-child:after{
+            content: '';
+          }
+        }
+        .markedpad.editable{
+          position: relative;
+          top: 200px;
+          background: #dddddd;
+          min-width: 80vw;
+          &+.btnbox{
+            top: 220px;
+          }
+        }
+      }
+      &:after{
+        content: '|';
+        font-size: 32px;
+        margin: 0 20px;
+        color: #eee;
+      }
+    }
+    .right{
+      width: 100%;
+    }
+  }
+  .searchbox{
+    background: #f00;
+    display: flex;
+    align-items: center;
+    position: relative;
+    border-radius: 30px;
+    background: #eee;
+    padding-left: 50px;
+    padding-right: 10px;
+    input{
+      text-align: center;
+    }
+    .bi{
+      opacity: .5;
+      cursor: pointer;
+      font-size: 28px;
+      &.bi-search{
+        pointer-events: none;
+      }
+      &.bi-x-lg:hover{
+        opacity: 1;
+      }
+    }
+  }
+  .editor-switch{
+    position: fixed;
+    top: 50%;
+    border-radius: 100%;
+    border: 1px solid #ccc;
+    opacity: .8;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: .6s;
+    background: rgba(255, 255, 255, .5);
+  }
+}
