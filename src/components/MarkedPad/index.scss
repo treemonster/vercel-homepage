@@ -1,0 +1,65 @@
+.__view_scope{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  .inp, .marked{
+    width: 50%;
+    margin: 5px;
+    padding: 10px;
+    outline: none;
+  }
+  .inp{
+    border: none;
+    background: #fafafa;
+    border-right: 1px solid #eee;
+    resize: none;
+    opacity: .8;
+    &:focus{
+      opacity: 1;
+    }
+  }
+  .marked{
+    overflow-x: hidden;
+    overflow-y: auto;
+    word-break: break-all;
+    p{
+      white-space: normal;
+      margin: 20px 0;
+    }
+    code{
+      white-space: nowrap;
+    }
+    blockquote{
+      margin-left: 20px;
+    }
+    ul, ol{
+      padding-left: 40px;
+      line-height: 2;
+    }
+    pre{
+      display: flex;
+      code{
+        line-height: 2;
+        background: #eee;
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        display: block;
+        margin: 10px;
+        white-space: pre-line;
+      }
+    }
+    code{
+      background: #ffd789;
+      padding: 4px 8px;
+      margin: 4px;
+      border-radius: 8px;
+    }
+  }
+  &.readonly{
+    .marked{
+      width: 100%;
+    }
+  }
+}

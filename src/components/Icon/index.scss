@@ -1,0 +1,92 @@
+.__view_scope{
+  display: inline-block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .text{
+    margin-right: 10px;
+  }
+
+  &.btn{
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: .3s;
+    &:hover{
+      box-shadow: 0 0 15px #ccc;
+    }
+  }
+
+  &.simple-btn{
+    cursor: pointer;
+    transition: .3s;
+    &:hover{
+      color: #fe9604;
+    }
+  }
+
+  &.active{
+    color: #fe9604;
+    &.btn{
+      border: 1px solid #fe9604;
+      &:hover{
+        box-shadow: 0 0 15px #fe9604;
+      }
+    }
+  }
+  &.disabled{
+    opacity: .5;
+    cursor: no-drop;
+    box-shadow: none!important;
+  }
+
+  &.rotating{
+    .bi{
+      animation: rotating 1s infinite linear;
+      @keyframes rotating{
+        0%{
+          transform: rotate(0deg);
+        }
+        100%{
+          transform: rotate(360deg);
+        }
+      }
+    }
+  }
+
+  &.small-size{
+    min-width: 36px;
+    padding: 0 10px;
+    height: 36px;
+    .text{
+      font-size: 28px;
+    }
+    .bi{
+      font-size: 24px;
+    }
+  }
+  &.normal-size{
+    min-width: 50px;
+    padding: 0 10px;
+    height: 50px;
+    .text{
+      font-size: 36px;
+    }
+    .bi{
+      font-size: 32px;
+    }
+  }
+  &.large-size{
+    min-width: 72px;
+    padding: 0 10px;
+    height: 72px;
+    .text{
+      font-size: 56px;
+    }
+    .bi{
+      font-size: 48px;
+    }
+  }
+
+}
