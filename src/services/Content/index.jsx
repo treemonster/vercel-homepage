@@ -35,7 +35,7 @@ export default function(props) {
     editable: type==='new',
   })
 
-  const {set_searchText}=useSearchState()
+  const {set_confirmSearchText}=useSearchState()
 
   const _fetchWithToast=async ([begin, done], task, cb)=>{
     Toast.show(begin)
@@ -55,10 +55,10 @@ export default function(props) {
         <div className='item'>
           <&=@/components/Text readOnly={!editable} value={title} onChange={value=>{
             set_title(value)
-          }} />
+          }} className='title' />
           {!editable && create_at? <span className='date'>{time2str(create_at)}</span>: null}
         </div>
-        <div className='item'>
+        <div className='item right'>
           <&=@/components/Text readOnly={!editable} value={tags} className='tags' onChange={value=>{
             set_tags(value.split(',').map(x=>x.trim()).join(', '))
           }} render={x=>{
@@ -66,7 +66,7 @@ export default function(props) {
               if(!v) return null
               v=v.trim()
               return <div className='tag' key={v} onClick={_=>{
-                set_searchText(v)
+                set_confirmSearchText('tag: '+v)
                 pushUrl(Router=>Router.Index)
               }} style={{backgroundColor: str2color(v)}}>{v}</div>
             })
@@ -77,7 +77,7 @@ export default function(props) {
       {enableEditor && <&=@/components/EditBox
         className='btns'
         isEditing={editable}
-        onEdit={_=>{
+        onEdit={type==='small'? null: _=>{
           if(type==='new') {
             _fetchWithToast(
               ['saving..', 'saved'],

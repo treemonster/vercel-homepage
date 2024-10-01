@@ -13,7 +13,7 @@ export default function(props) {
     action,
     forPlaceholder=false,
     className='',
-    replacer=null,
+    parser=null,
   }=props
 
   const [text, set_text]=useShareState('AppInfo#'+action, _text)
@@ -43,7 +43,7 @@ export default function(props) {
         initialValue={text}
         onChange={set_text}
         enableInput={editable}
-        replacer={replacer}
+        parser={parser}
       />
     </div>
     {enable && <&=@/components/EditBox

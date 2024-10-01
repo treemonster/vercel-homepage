@@ -6,8 +6,8 @@ class Lib_ssr{
 		return $_RAW_REQUEST['url'].indexOf(v)>-1
 	}
 
-	timelimitQuery(query, timeout=1e3) {
-		return Promise.race([query, Utils.sleep(timeout, query)])
+	timelimitQuery(query) {
+		return Promise.race([query, Utils.sleep(__SSR_PAYLOAD_TIMEOUT__, query)])
 	}
 
 	buildContext() {
@@ -48,16 +48,16 @@ class Lib_ssr{
 		const arg={
 			USE_EDURA: this.isQueryFlag('edura=1'),
       css: [],
-      syncJs: [],
+      venderJs: [],
 			props: {},
       ssrHTML: null,
-      asyncJs: [],
+      assetJs: [],
 			extHeaderStr: '',
 		}
 		const isForceCsr=this.isQueryFlag('force_csr=1')
 
-	  arg.syncJs.push('/assets/externals/js/highlight.min.js')
-	  arg.css.push('/assets/externals/css/highlight.css')
+	  arg.venderJs.push('/assets/externals/js/highlight.min.js')
+	  arg.css.push('/assets/externals/css/github-dark.min.css')
 
 		const $_distDir=__IS_DEV__? __DEV_WEB_DIR__+'/dist': __WEB__+'/app'
 
@@ -80,6 +80,7 @@ class Lib_ssr{
 		const [ctx, appCtx]=this.buildContext()
 		const e=vm1.runInNewContext(ctx)
 		e.prepareCtx && e.prepareCtx(appCtx)
+		define('__IS_SSR__', true)
 		const payload=isForceCsr? null: await this.timelimitQuery(e.fetchPayload()).catch(_=>{
 			define('__SSR_TIMEOUT__', true)
 			return null
@@ -93,7 +94,6 @@ class Lib_ssr{
 		if(__IS_DEV__) delete require.cache[assets_fn]
 
 		arg.css.push((__IS_DEV__? '': '/assets/app/')+assets.css)
-		if(__IS_DEV__ && assets.hot) arg.asyncJs.push(assets.hot)
 
 		if(__IS_DEV__) {
 			arg.extHeaderStr='<style type=text/css>iframe{display:none!important;}</style>'
@@ -102,12 +102,19 @@ class Lib_ssr{
 				React: 'window.React',
 				ReactDom: 'window.ReactDOM',
 			})
-			arg.syncJs.push(
+			arg.venderJs.push(
 				'/assets/externals/js/react.production.min.js',
 				'/assets/externals/js/react-dom.production.min.js',
 			)
 		}
-		arg[__IS_DEV__? 'syncJs': 'asyncJs'].push((__IS_DEV__? '': '/assets/app/')+assets.js)
+
+		if(__IS_DEV__) {
+  		arg.assetJs.push({src: assets.js})
+		  if(assets.hot) arg.assetJs.push({src: assets.hot, isAsync: true})
+		}else{
+			arg.assetJs.push({src: '/assets/app/'+assets.js, isAsync: true})
+		}
+
 
     include(__dirname+'/ssr.html.s', arg)
 

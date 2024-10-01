@@ -4,16 +4,30 @@
 
 class Lib_psql{
   constructor() {
-    const {Pool}=require('pg')
-    const {$POOL_CONFIG}=include(__PG_CONFIG__)
-    if(!Application.Pool) Application.Pool=new Pool($POOL_CONFIG)
-    this._pool=Application.Pool
     this.opening=this.open()
     defer(_=>this.close())
   }
+  async _getClient() {
+    const {Pool, Client}=require('pg')
+    const {$POOL_CONFIG, $CLIENT_CONFIG, $USE_POOL}=include(__PG_CONFIG__)
+    if($USE_POOL) {
+      if(!Application.PgConnPool) {
+        const pool=new Pool($POOL_CONFIG)
+        Application.PgConnPool=pool
+      }
+      const {waitingCount, idleCount, expiredCount, totalCount}=Application.PgConnPool
+      const client=await Application.PgConnPool.connect()
+      this._free=_=>client.release()
+      return client
+    }else{
+      const client=new Client($CLIENT_CONFIG)
+      this._free=_=>client.end()
+      await client.connect()
+      return client
+    }
+  }
   async open() {
-    const pool=this._pool
-    const client=await pool.connect()
+    const client=await this._getClient()
     this._client=client
     const sqlHelper=(option={})=>{
       const {log=false}=option
@@ -31,8 +45,8 @@ class Lib_psql{
     return {sqlHelper}
   }
   async close() {
-    if(!this._client) return;
-    this._client.release()
-    this._client=null
+    if(!this._free) return;
+    await this._free()
+    this._free=null
   }
 }

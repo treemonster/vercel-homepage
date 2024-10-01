@@ -29,6 +29,14 @@
         align-items: flex-start;
         flex-direction: column;
         justify-content: center;
+        overflow: hidden;
+        &.right{
+          float: none;
+          overflow: visible;
+        }
+      }
+      .title{
+        font-size: 40px;
       }
       .date{
         margin: 8px 0;
@@ -95,6 +103,7 @@
         opacity: .8;
         transition: .3s;
         &:hover{
+          backdrop-filter: blur(5Px);
           opacity: 1;
         }
         .tip{
@@ -112,7 +121,7 @@
   &.small{
     .readmode.markedpad{
       height: auto;
-      max-height: 500px;
+      max-height: 250px;
       min-height: 150px;
     }
   }

@@ -9,7 +9,7 @@ export async function fetchPayload() {
 
 export default function(props) {
   const {payload}=props
-  if(!payload.data) return null
+  if(!payload.data) return <&=@/services/LoadingPayload payload={payload} />
   return <div className='__view_scope'>
     <&=@/services/Content type='large' {...payload.data} />
   </div>

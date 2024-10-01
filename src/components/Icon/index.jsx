@@ -15,7 +15,10 @@ export default function(props) {
     size='normal',
   }=props
 
-  return <div onClick={onClick} className={[
+  return <div onClick={e=>{
+    if(isDisabled) return;
+    onClick?.(e)
+  }} className={[
     '__view_scope',
     isBtn && 'btn',
     isSimpleBtn && 'simple-btn',

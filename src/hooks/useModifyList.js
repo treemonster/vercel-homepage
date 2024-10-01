@@ -2,28 +2,21 @@ import {useShareState} from '@/hooks/useShareState'
 const STORE_PREFIX='useModifyListStore'
 
 export function useCreateList() {
-  const [list, set_list]=useShareState(STORE_PREFIX+'/useCreateList', {_: []})
+  const [list, set_list]=useShareState(STORE_PREFIX+'/useCreateList', [])
   const addNew=li=>{
-    list._.unshift(li)
-    set_list({_: list._})
+    list.unshift(li)
+    set_list([...list])
   }
-  return {
-    createList: list._,
-    watches: [list],
-    addNew,
-  }
+  return {list, addNew}
 }
 
 export function useDeleteContent() {
-  const [deletes, set_deletes]=useShareState(STORE_PREFIX+'/useDeleteContent', {_: new Set})
-  const filterDeleted=arr=>arr.map(x=>deletes._.has(x.id)? null: x).filter(Boolean)
+  const [deletes, set_deletes]=useShareState(STORE_PREFIX+'/useDeleteContent', [])
+  const filterDeleted=arr=>arr.map(x=>deletes.includes(x.id)? null: x).filter(Boolean)
   const deleteById=id=>{
-    deletes._.add(id)
-    set_deletes({_: deletes._})
+    if(deletes.includes(id)) return;
+    deletes.push(id)
+    set_deletes([...deletes])
   }
-  return {
-    watches: [deletes],
-    deleteById,
-    filterDeleted,
-  }
+  return {deletes, deleteById, filterDeleted}
 }

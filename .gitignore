@@ -3,5 +3,9 @@ node_modules
 package-lock.json
 .DS_*
 build-vercel/node_modules
+build-vercel/package.json
+build-vercel/package-lock.json
 app.js
+TODO
+md_data
 

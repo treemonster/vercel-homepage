@@ -4,6 +4,5 @@ export const zIndex={
 }
 
 export const isUnique={
-  Index: true,
   Create: true,
 }

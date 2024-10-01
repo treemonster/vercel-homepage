@@ -23,9 +23,13 @@
     overflow-x: hidden;
     overflow-y: auto;
     word-break: break-all;
+    h1, h2, h3, h4, h5, h6{
+      white-space: break-spaces;
+    }
     p{
       white-space: normal;
       margin: 20px 0;
+      line-height: 2;
     }
     code{
       white-space: nowrap;
@@ -37,8 +41,13 @@
       padding-left: 40px;
       line-height: 2;
     }
+    blockquote{
+      border-left: 10px solid #eee;
+      padding-left: 10px;
+    }
     pre{
       display: flex;
+      flex-direction: column;
       code{
         line-height: 2;
         background: #eee;
@@ -46,8 +55,9 @@
         padding: 10px;
         border-radius: 5px;
         display: block;
-        margin: 10px;
-        white-space: pre-line;
+        margin: 10px 0;
+        white-space: pre-wrap;
+        letter-spacing: 1px;
       }
     }
     code{
@@ -55,6 +65,91 @@
       padding: 4px 8px;
       margin: 4px;
       border-radius: 8px;
+    }
+  }
+  .code-panel{
+    width: 100%;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    padding-bottom: 0;
+    background: #0d1117;
+    .toolbar{
+      display: flex;
+      background: #eee;
+      .playbtn{
+        margin: 5px;
+        border-radius: 15px;
+        background: #aaf;
+        color: #fff;
+        padding: 2px 5px;
+        animation: pulse-btn 2s infinite linear;
+        @keyframes pulse-btn{
+          0%{
+            transform: scale(1);
+            transform-origin: center;
+            background: #aaf;
+          }
+          10%{
+            transform: scale(.8);
+            transform-origin: center;
+            background: #afa;
+          }
+          20%{
+            transform: scale(1);
+            transform-origin: center;
+            background: #aaf;
+          }
+          30%{
+            transform: scale(.8);
+            transform-origin: center;
+            background: #afa;
+          }
+          40%{
+            transform: scale(1);
+            transform-origin: center;
+            background: #aaf;
+          }
+          100%{
+            transform: scale(1);
+            transform-origin: center;
+            background: #aaf;
+          }
+        }
+        &:hover{
+          *{
+            color: #fff!important;
+          }
+        }
+      }
+      .filename-tabs{
+        width: 100%;
+        display: flex;
+        .tab{
+          display: flex;
+          align-items: center;
+          border-radius: 15px 15px 0 0;
+          background: #ddd;
+          color: #333;
+          transition: .3s;
+          cursor: pointer;
+          padding: 10px 15px;
+          &.active{
+            background: #333;
+            color: #fff;
+          }
+        }
+      }
+    }
+    .code-board{
+      background: #0d1117;
+      width: 100%;
+      pre{
+        margin: 0;
+        code{
+           background: #0d1117;
+        }
+      }
     }
   }
   &.readonly{

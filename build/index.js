@@ -11,14 +11,10 @@ if(+process.version.match(/^v(\d+)/)[1]>16 && process.env[nk]!==nv) {
 }else{
   const open=require('open')
   if(IS_DEV) {
-    run('cross-env', 'myblog_environ=dev sptcd -rindex.s -wserver'.split(' '))
+    run('cross-env', 'myblog_environ=dev myblog_write=on sptcd -rindex.s -wserver'.split(' '))
     webpackDev()
     open('http://127.0.0.1:3000')
   }else if(IS_BUILD) {
     webpackBuild()
-  }else if(IS_SERVE) {
-    run('cross-env', 'myblog_environ=prod sptcd -rindex.s -wserver -n2 -s'.split(' '))
-    console.log('-- The HTTP service is started with the address 127.0.0.1:9090 --')
-    open('http://127.0.0.1:9090')
   }
 }

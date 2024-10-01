@@ -7,6 +7,10 @@ setDebug(__IS_DEV__)
 if(__IS_DEV__) define('__DEV_WEB_DIR__', __dirname+'/..')
 define('__WEB__', __dirname+'/public')
 define('__PG_CONFIG__', __dirname+'/conf/pg.s')
+define('__SSR_PAYLOAD_TIMEOUT__', 1e3)
+define('md5', x=>{
+  return require('crypto').createHash('md5').update(x).digest('hex')
+})
 __autoload(classname=>{
   if(classname.endsWith('Controller')) {
     return __APP__+'/controllers/'+classname.substr(0, classname.length-10).replace(/_/g, '/')+'.s'
@@ -21,7 +25,7 @@ __autoload(classname=>{
     return __APP__+'/services/'+classname.substr(0, classname.length-7)+'.s'
   }
 })
-define('__ROUTER_SETTING__', __dirname+'/conf/setting.s')
+define('__ROUTER_SETTING__', __dirname+'/conf/router.s')
 define('__ROUTER__', __dirname+'/router.s')
 const {resolve, execute}=include(__ROUTER__)
 const pathname=resolve($_REQUEST_FILE['pathname'])

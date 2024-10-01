@@ -10,7 +10,7 @@ class Lib_request{
 	}
 
 	readUpstream(upstream, option={}) {
-    const {maxlen=2000, timeout=1e3, readAsBinary=false}=option
+    const {maxlen=8000, timeout=1e3, readAsBinary=false}=option
     const def=Lib_utils.withResolvers()
 
     upstream.on('error', e=>{

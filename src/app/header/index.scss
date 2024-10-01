@@ -10,6 +10,12 @@
     top: 0;
     background: #fff;
     box-shadow: 0 0 50px #333;
+    .with-back{
+      background-image: url(./imgs/back.png);
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: right center;
+    }
   }
   .placeholder{
     position: relative;
@@ -76,15 +82,17 @@
     position: relative;
     border-radius: 30px;
     background: #eee;
-    padding-left: 50px;
-    padding-right: 10px;
+    padding-left: 30px;
+    padding-right: 0px;
+    overflow: hidden;
     input{
-      text-align: center;
+      padding: 0;
     }
     .bi{
       opacity: .5;
       cursor: pointer;
       font-size: 28px;
+      min-width: 40px;
       &.bi-search{
         pointer-events: none;
       }

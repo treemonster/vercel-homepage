@@ -15,6 +15,7 @@ export async function fetchPayload() {
 }
 
 export default function({payload}) {
+  if(!payload.data) return <&=@/services/LoadingPayload payload={payload} />
   const {data}=payload
   const {readOnly, ...o}=data || {}
   return <div className='__view_scope'>
@@ -28,6 +29,8 @@ function AppHeader(props) {
   const {isPlaceholder, text, leftText}=props
   const {page}=getPageRef()
   const leftRef=React.useRef(null)
+  const {set_confirmSearchText}=useSearchState()
+
   React.useEffect(_=>{
     const c=leftRef.current
     if(!c) return;
@@ -41,11 +44,13 @@ function AppHeader(props) {
   return <div className={(isPlaceholder? 'placeholder': 'fixed')}>
     <&=@/services/Container children={<>
 
-    <&=@/services/AppInfo
-      text={text}
-      action='/app/saveHeader'
-      isPlaceholder={isPlaceholder}
-    />
+    <div className='with-back'>
+      <&=@/services/AppInfo
+        text={text}
+        action='/app/saveHeader'
+        isPlaceholder={isPlaceholder}
+      />
+    </div>
 
     <div className='tabs'>
       {
@@ -59,9 +64,9 @@ function AppHeader(props) {
                 text={leftText}
                 action='/app/saveHeaderLeftText'
                 isPlaceholder={isPlaceholder}
-                replacer={x=>{
+                parser={x=>{
                   const e=[]
-                  x.replace(/<a href="([^"]+)">([^<]+)<\/a>/g, (_, link, text)=>{
+                  x.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, (_, text, link)=>{
                     e.push(<a key={text} href={link} className={isCurrent(link)? 'active': ''}>{text}</a>)
                   })
                   return e
@@ -84,8 +89,8 @@ function SearchBtn(props) {
 
   const {
     searchText,
-
     set_searchText,
+    set_confirmSearchText,
   }=useSearchState()
 
   return <div className='searchbox' onClick={_=>{
@@ -95,6 +100,7 @@ function SearchBtn(props) {
       className='search'
       value={searchText}
       onChange={x=>set_searchText(x)}
+      onConfirm={x=>set_confirmSearchText(x)}
       readOnly={false}
     />
     {
