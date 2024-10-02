@@ -15,14 +15,13 @@ class indexController{
 
     const _fn=__WEB__+'/'+path.resolve(fn)
 
-    const etag='W/"'+md5(fn+'-'+fs.statSync(_fn).size)+'"'
-    if($_RAW_REQUEST['headers']['if-none-match']===etag) {
-      setStatus(304)
+    const m=new Date(fs.statSync(_fn).mtime).toUTCString()
+    if($_RAW_REQUEST['headers']['if-modified-since']===m) {
+      setStatus(304, 'not modified')
       setResponseHeaders({'content-length': 0})
       return
     }
-
-    setResponseHeaders({etag})
+    setResponseHeaders({'last-modified': m})
 
     return new Promise(done=>{
       const rs=fs.createReadStream(_fn)
@@ -47,6 +46,6 @@ class indexController{
     setResponseHeaders({
       'X-response-cost': Date.now()-this._start,
     })
-    echo(ret || '')
+    echo(err? 'failed to handle this request': ret)
   }
 }

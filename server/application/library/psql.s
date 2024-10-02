@@ -15,6 +15,7 @@ class Lib_psql{
         const pool=new Pool($POOL_CONFIG)
         Application.PgConnPool=pool
       }
+      const {waitingCount, idleCount, expiredCount, totalCount}=Application.PgConnPool
       const client=await Application.PgConnPool.connect()
       this._free=_=>client.release()
       return client

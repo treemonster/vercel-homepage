@@ -1,6 +1,6 @@
 <?js
 
-$USE_POOL=true
+$USE_POOL=!__IS_DEV__
 
 $CLIENT_CONFIG={
   connectionString: process.env.POSTGRES_URL || (_=>{
