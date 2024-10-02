@@ -1,6 +1,6 @@
 import React from 'react'
 import './index.scss'
-import { marked } from 'marked/marked.min'
+import marked from 'marked/marked.min'
 
 function parse(x) {
   return marked.parse(x || '').trim().replace(/\n+/g, '\n')

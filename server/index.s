@@ -7,6 +7,9 @@ setDebug(__IS_DEV__)
 if(__IS_DEV__) define('__DEV_WEB_DIR__', __dirname+'/..')
 define('__WEB__', __dirname+'/public')
 define('__PG_CONFIG__', __dirname+'/conf/pg.s')
+define('md5', x=>{
+  return require('crypto').createHash('md5').update(x).digest('hex')
+})
 __autoload(classname=>{
   if(classname.endsWith('Controller')) {
     return __APP__+'/controllers/'+classname.substr(0, classname.length-10).replace(/_/g, '/')+'.s'

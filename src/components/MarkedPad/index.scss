@@ -37,6 +37,10 @@
       padding-left: 40px;
       line-height: 2;
     }
+    blockquote{
+      border-left: 10px solid #eee;
+      padding-left: 10px;
+    }
     pre{
       display: flex;
       code{
@@ -47,7 +51,8 @@
         border-radius: 5px;
         display: block;
         margin: 10px;
-        white-space: pre-line;
+        white-space: pre-wrap;
+        letter-spacing: 1px;
       }
     }
     code{

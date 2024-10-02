@@ -10,16 +10,16 @@
     "pg": "^8.13.0",
     "react": "16.10.1",
     "react-dom": "16.10.1",
-    "sptc": "0.0.22"
+    "sptc": "0.0.23"
   },
   "devDependencies": {
-    "marked": "^4.3.0",
-    "bootstrap-icons": "^1.11.3",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.0",
     "@craco/craco": "^6.1.1",
+    "bootstrap-icons": "^1.11.3",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.3",
     "fs-extra": "^10.1.0",
+    "marked": "^5.1.2",
     "mini-css-extract-plugin": "1.6.2",
     "null-loader": "^4.0.1",
     "open": "^8.4.2",

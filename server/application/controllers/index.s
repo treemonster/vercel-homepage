@@ -1,35 +1,52 @@
 <?js
 class indexController{
+  init() {
+    this._start=Date.now()
+  }
   async ssrAction() {
     const ssr=new Lib_ssr
     await ssr.render()
+    return readEchoed()
   }
   async assetsAction() {
     const fn='/'+$_REQUEST_FILE['subRoute'][1]
     const path=require('path')
     const fs=require('fs')
-    try{
-      return new Promise(done=>{
-        const _fn=__WEB__+'/'+path.resolve(fn)
-        const rs=fs.createReadStream(_fn)
-        defer(_=>rs.close())
-        const mime=({
-          '.js': 'application/x-javascript',
-          '.css': 'text/css',
-          '.jpg': 'image/jpeg',
-          '.png': 'image/png',
-          '.jpeg': 'image/jpeg',
-        })[path.parse(fn).ext] || 'application/octet-stream'
-        setResponseHeaders({
-          'content-type': mime,
-          'content-length': fs.statSync(_fn).size,
-        })
-        rs.on('data', buf=>echo(buf))
-        rs.on('end', done)
-        rs.on('error', done)
-      })
-    }catch(e) {
-      console.log(e)
+
+    const _fn=__WEB__+'/'+path.resolve(fn)
+
+    const etag='W/"'+md5(fn+'-'+fs.statSync(_fn).size)+'"'
+    if($_RAW_REQUEST['headers']['if-none-match']===etag) {
+      setStatus(304)
+      setResponseHeaders({'content-length': 0})
+      return
     }
+
+    setResponseHeaders({etag})
+
+    return new Promise(done=>{
+      const rs=fs.createReadStream(_fn)
+      defer(_=>rs.close())
+      const mime=({
+        '.js': 'application/x-javascript',
+        '.css': 'text/css',
+        '.jpg': 'image/jpeg',
+        '.png': 'image/png',
+        '.jpeg': 'image/jpeg',
+      })[path.parse(fn).ext] || 'application/octet-stream'
+      setResponseHeaders({
+        'content-type': mime,
+        'content-length': fs.statSync(_fn).size,
+      })
+      rs.on('data', buf=>echo(buf))
+      rs.on('end', done)
+      rs.on('error', done)
+    })
+  }
+  finish(err, ret) {
+    setResponseHeaders({
+      'X-response-cost': Date.now()-this._start,
+    })
+    echo(ret || '')
   }
 }
