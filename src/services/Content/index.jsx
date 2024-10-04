@@ -66,7 +66,7 @@ export default function(props) {
               if(!v) return null
               v=v.trim()
               return <div className='tag' key={v} onClick={_=>{
-                set_searchText(v)
+                set_searchText('tag: '+v)
                 pushUrl(Router=>Router.Index)
               }} style={{backgroundColor: str2color(v)}}>{v}</div>
             })

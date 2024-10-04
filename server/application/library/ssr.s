@@ -80,6 +80,7 @@ class Lib_ssr{
 		const [ctx, appCtx]=this.buildContext()
 		const e=vm1.runInNewContext(ctx)
 		e.prepareCtx && e.prepareCtx(appCtx)
+		define('__IS_SSR__', true)
 		const payload=isForceCsr? null: await this.timelimitQuery(e.fetchPayload()).catch(_=>{
 			define('__SSR_TIMEOUT__', true)
 			return null

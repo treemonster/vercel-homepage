@@ -29,7 +29,7 @@ export function usePagedList(searchText) {
     isLoading: loading,
     isEnd: end,
 
-    watches: [list],
+    watches: [list._],
     loadNextPage,
   }
 }

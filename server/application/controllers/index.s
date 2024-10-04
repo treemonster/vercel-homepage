@@ -44,8 +44,12 @@ class indexController{
   }
   finish(err, ret) {
     setResponseHeaders({
-      'X-response-cost': Date.now()-this._start,
+      'x-response-cost': Date.now()-this._start,
     })
-    echo(err? 'failed to handle this request': ret)
+    if(!err) {
+      echo(ret)
+      return
+    }
+    echo(isDebug()? err.stack: 'failed to handle this request')
   }
 }

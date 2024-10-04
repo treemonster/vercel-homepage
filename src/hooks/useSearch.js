@@ -7,16 +7,6 @@ export function useSearchState() {
   const [searchText, set_searchText]=useShareState('')
   const [confirmSearchText, set_confirmSearchText]=useShareState('')
 
-  const filterBySearchText=list=>{
-    return list.filter(x=>{
-      const {
-        title=x.title,
-        content=x.content,
-      }=getContentById(x.id)
-      return title.indexOf(searchText)>-1 || content.indexOf(searchText)>-1
-    })
-  }
-
   React.useEffect(_=>{
     let t=setTimeout(_=>{
       set_confirmSearchText(searchText)
@@ -29,7 +19,6 @@ export function useSearchState() {
   return {
     searchText,
     set_searchText,
-    filterBySearchText,
     confirmSearchText,
   }
 }

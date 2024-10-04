@@ -16,8 +16,8 @@ async function getFirstPageData(searchText='') {
     {id: lastValidId},
     {list: payloadList, isEnd},
   ]=await Promise.all([
-    fetch('/content/getLastId', {searchText}),
-    fetch('/content/list', {id: -1, searchText}),
+    fetch('/content/getLastId', {searchText}, 'firstpage-lastid'),
+    fetch('/content/list', {id: -1, searchText}, 'firstpage-list'),
   ])
 
   const lastPayloadId=payloadList[payloadList.length-1]?.id
@@ -84,7 +84,7 @@ export default function(props) {
         <div className='loading-panel'>
           <&=@/components/Loading />
         </div>:
-        <RenderList firstPageData={data} />
+        <RenderList key={searchText} firstPageData={data} />
     }
   </div>
 }
@@ -114,7 +114,6 @@ function ContentList(props) {
   const {payloadList}=props
 
   const {
-    filterBySearchText,
     searchText,
   }=useSearchState()
 
@@ -135,7 +134,7 @@ function ContentList(props) {
 
   const list=React.useMemo(_=>{
     const _all=[...createList, ...payloadList, ...pagedList]
-    const _list2=[filterDeleted, filterBySearchText].reduce((x, f)=>f(x), _all)
+    const _list2=[filterDeleted].reduce((x, f)=>f(x), _all)
     const ls=[], _map={}
     for(let k of _list2) {
       if(_map[k.id]) continue
@@ -144,8 +143,8 @@ function ContentList(props) {
     }
     return ls
   }, [
-    deletedListWatches,
     searchText,
+    deletedListWatches,
     createListWatches,
     pagedListWatches,
   ])

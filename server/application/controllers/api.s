@@ -11,14 +11,15 @@ class apiController{
   }
   finish(err, ret) {
     if(__SSR_TIMEOUT__) return;
-    setResponseHeaders({
-      'X-response-api-cost': Date.now()-this._start,
-    })
+    if(!__IS_SSR__) {
+      setResponseHeaders({
+        'x-response-api-cost': Date.now()-this._start,
+      })
+    }
     if(err) {
       Lib_response.json({error: err})
     }else{
       Lib_response.json({data: ret, error: null})
     }
   }
-
 }

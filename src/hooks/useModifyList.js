@@ -9,7 +9,7 @@ export function useCreateList() {
   }
   return {
     createList: list._,
-    watches: [list],
+    watches: [list._],
     addNew,
   }
 }
@@ -22,7 +22,7 @@ export function useDeleteContent() {
     set_deletes({_: deletes._})
   }
   return {
-    watches: [deletes],
+    watches: [deletes._],
     deleteById,
     filterDeleted,
   }

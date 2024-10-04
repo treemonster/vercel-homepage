@@ -77,12 +77,11 @@ class ContentModel extends Lib_psql{
 
   _filterBySearchText(sql, searchText) {
     if(searchText!=='') {
-      const st='%'+searchText+'%'
-      return `(
-        title LIKE ${sql.quota(st)} or
-        tags LIKE ${sql.quota(st)} or
-        content LIKE ${sql.quota(st)}
-      )`
+      if(searchText.indexOf('tag: ')===0) {
+        const tag=searchText.substr(5)
+        return `concat(tags, ', ') LIKE ${sql.quota('%'+tag+', %')}`
+      }
+      return `concat(title, '\n', tags, '\n', content) LIKE ${sql.quota('%'+searchText+'%')}`
     }
   }
 
