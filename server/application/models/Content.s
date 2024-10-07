@@ -90,17 +90,33 @@ class ContentModel extends Lib_psql{
     count,
     desc=false,
     except_current_id=true,
+    summary=false,
     searchText='',
   }) {
     const {sqlHelper}=await this.opening
     const sql=sqlHelper({log: true})
-    let _sql=`select id, title, tags, content, create_at from content `
+    let _sql=`select id, title, tags, `
+    if(summary) {
+      _sql+=`LEFT(content, 100) as content`
+    }else{
+      _sql+=`content`
+    }
+    _sql+=`, create_at from content `
     let and=[]
     if(id>0) and.push(`id ${desc? '<': '>'}${except_current_id? '': '='} ${sql.quota(id)}`)
     if(searchText!=='') and.push(this._filterBySearchText(sql, searchText))
     if(and.length) _sql+=` where `+and.join(' and ')
     _sql+=` order by id ${desc? 'desc': 'asc'} limit ${sql.quota(count)} `
     const {rows}=await sql.query(_sql)
+    if(summary) {
+      for(let o of rows) {
+        o.content=o.content.replace(/\n[^\n]+$/, '')
+        const r=o.content.match(/```/g)
+        if(r && r.length%2) {
+          o.content=o.content.substr(0, o.content.lastIndexOf('```'))
+        }
+      }
+    }
     return rows
   }
 

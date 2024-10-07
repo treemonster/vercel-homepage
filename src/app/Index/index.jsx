@@ -132,6 +132,8 @@ function ContentList(props) {
     watches: pagedListWatches,
   }=usePagedList(searchText)
 
+  const fades=React.useRef(1)
+
   const list=React.useMemo(_=>{
     const _all=[...createList, ...payloadList, ...pagedList]
     const _list2=[filterDeleted].reduce((x, f)=>f(x), _all)
@@ -139,8 +141,10 @@ function ContentList(props) {
     for(let k of _list2) {
       if(_map[k.id]) continue
       _map[k.id]=1
+      k._fade_t=ls.length>=fades.current? (ls.length-fades.current+1)*100: 0
       ls.push(k)
     }
+    fades.current=Math.max(fades.current, ls.length)
     return ls
   }, [
     searchText,
@@ -149,8 +153,25 @@ function ContentList(props) {
     pagedListWatches,
   ])
 
-  return React.useMemo(_=>list.map(v=><&=@/services/Content key={v.id} type='small' {...v} />), [list])
+  return React.useMemo(_=>list.map(v=>(
+    <FadeIn t={v._fade_t} key={v.id}>
+      <&=@/services/Content type='small' {...v} />
+    </FadeIn>
+  )), [list])
 
+}
+
+function FadeIn(props) {
+  const {t, children}=props
+  const [show, set_show]=React.useState(t? false: true)
+  React.useEffect(_=>{
+    if(show) return;
+    const c=setTimeout(_=>{
+      set_show(true)
+    }, t)
+    return _=>clearTimeout(c)
+  }, [])
+  return <div className={'v-fade '+(show? '': 'v-fade-hide')}>{show? children: null}</div>
 }
 
 function LoadMore(props) {

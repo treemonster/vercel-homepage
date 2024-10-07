@@ -9,8 +9,9 @@ export function useSearchState() {
 
   React.useEffect(_=>{
     let t=setTimeout(_=>{
+      if(confirmSearchText===searchText) return;
       set_confirmSearchText(searchText)
-    }, 1e2)
+    }, 5e2)
     return _=>{
       clearTimeout(t)
     }
@@ -20,5 +21,9 @@ export function useSearchState() {
     searchText,
     set_searchText,
     confirmSearchText,
+    set_confirmSearchText: text=>{
+      if(text!==searchText) set_searchText(text)
+      set_confirmSearchText(text)
+    },
   }
 }

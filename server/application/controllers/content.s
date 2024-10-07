@@ -33,6 +33,7 @@ class contentController extends apiController{
       count: queryCount,
       desc: true,
       except_current_id: true,
+      summary: true,
       searchText,
     })
     const isEnd=list.length<queryCount || +lastValidId === (list[list.length-1] || '').id

@@ -87,8 +87,8 @@ function SearchBtn(props) {
 
   const {
     searchText,
-
     set_searchText,
+    set_confirmSearchText,
   }=useSearchState()
 
   return <div className='searchbox' onClick={_=>{
@@ -98,6 +98,7 @@ function SearchBtn(props) {
       className='search'
       value={searchText}
       onChange={x=>set_searchText(x)}
+      onConfirm={x=>set_confirmSearchText(x)}
       readOnly={false}
     />
     {

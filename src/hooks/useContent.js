@@ -23,6 +23,10 @@ export function useContentStateById(id, e) {
     if(undefined===e._title) Object.assign(e, {_title: title, _tags: tags, _content: content})
   }, [title, tags, content, create_at, editable])
 
+  React.useEffect(_=>{
+    if(e.content.length>content.length) set_content(e.content)
+  }, [e.content])
+
   const {addNew}=useCreateList()
   const createContent=async ({title, tags, content})=>{
     const {id, create_at}=await fetch('/content/create', {title, tags, content})

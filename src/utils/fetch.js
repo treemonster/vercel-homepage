@@ -79,10 +79,10 @@ async function _fetch_mix(url, body, key=null) {
       }
     }catch(e) {
       for(let p of r) {
-        p.reject({responseJSON: {error: e}})
+        p.reject(e)
       }
     }
-  }, 5e2)
+  }, 2e2)
   return retDefer.promise
 }
 
