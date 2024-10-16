@@ -37,7 +37,7 @@ class ContentModel extends Lib_psql{
     const {sqlHelper}=await this.opening
     const sql=sqlHelper({log: true})
     const {rows}=await sql.query(`select id from content where title=${sql.quota(title)} limit 1`)
-    return (rows[0] || {}).id
+    return rows[0].id
   }
 
   async detail(id) {
@@ -47,14 +47,16 @@ class ContentModel extends Lib_psql{
       select id, title, tags, content, create_at from content
     	where id = ${sql.quota(id)}
       limit 1`)
-    return rows[0]
+    const p=rows[0]
+    p.summary=this.content2summary(p.content)
+    p.id=parseInt(id)
+    return p
   }
 
   async update(id, {
     title=null,
     tags=null,
     content=null,
-    create_at=0,
   }) {
     const {sqlHelper}=await this.opening
     const sql=sqlHelper({log: true})
@@ -63,7 +65,6 @@ class ContentModel extends Lib_psql{
       title && `title=${sql.quota(title)}`,
       tags && `tags=${sql.quota(tags)}`,
       content && `content=${sql.quota(content)}`,
-      create_at && `create_at=${sql.quota(create_at)}`,
     ].filter(Boolean).join(',')
     _sql+=` where id=${sql.quota(id)}`
     await sql.query(_sql)
@@ -83,6 +84,15 @@ class ContentModel extends Lib_psql{
       }
       return `concat(title, '\n', tags, '\n', content) LIKE ${sql.quota('%'+searchText+'%')}`
     }
+  }
+
+  content2summary(content) {
+    let c=content.replace(/\n[^\n]+$/, '')
+    const r=c.match(/```/g)
+    if(r && r.length%2) {
+      c=c.substr(0, c.lastIndexOf('```'))
+    }
+    return c
   }
 
   async list({
@@ -110,11 +120,8 @@ class ContentModel extends Lib_psql{
     const {rows}=await sql.query(_sql)
     if(summary) {
       for(let o of rows) {
-        o.content=o.content.replace(/\n[^\n]+$/, '')
-        const r=o.content.match(/```/g)
-        if(r && r.length%2) {
-          o.content=o.content.substr(0, o.content.lastIndexOf('```'))
-        }
+        o.summary=this.content2summary(o.content)
+        delete o.content
       }
     }
     return rows

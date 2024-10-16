@@ -116,10 +116,6 @@ export default function(props) {
     set_markedVal(parse(v))
   }, [initialValue])
 
-  React.useEffect(_=>{
-    window.hljs?.highlightAll?.()
-  }, [markedVal, enableInput])
-
   const output=parser? parser(inpVal): markedVal
 
   return React.useMemo(_=><div className={'__view_scope'+(enableInput? '': ' readonly')}>

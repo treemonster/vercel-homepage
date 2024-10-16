@@ -43,9 +43,10 @@ class contentController extends apiController{
   async updateAction() {
     const {params, model}=this
     const {id, title, tags, content}=params
-    const create_at=Date.now()
-    await model.update(+id, {title, tags, content, create_at})
-    return {create_at}
+    await model.update(+id, {title, tags, content})
+    return {
+      summary: model.content2summary(content),
+    }
   }
 
   async detailAction() {
@@ -63,7 +64,11 @@ class contentController extends apiController{
     const {title, tags, content}=params
     const create_at=Date.now()
     await model.create(title, tags, content, create_at)
-    return {id: await model.title2id(title), create_at}
+    return {
+      id: await model.title2id(title),
+      create_at,
+      summary: model.content2summary(content),
+    }
   }
 
 }

@@ -11,7 +11,7 @@ export default function(props) {
       <h3 className='title'>
         <&=@/components/Icon
           className='bi-emoji-surprise'
-        /> network error
+        /> Network error.
       </h3>
       <&=@/components/Icon
         className='bi-arrow-counterclockwise'
@@ -20,7 +20,6 @@ export default function(props) {
         text={'reload'}
         size='normal'
       />
-    </div>
-    }
+    </div>}
   </div>
 }

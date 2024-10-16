@@ -11,6 +11,6 @@ export default function(props) {
   const {payload}=props
   if(!payload.data) return <&=@/services/LoadingPayload payload={payload} />
   return <div className='__view_scope'>
-    <&=@/services/Content type='large' {...payload.data} />
+    <&=@/services/Content type='large' detail={payload.data} />
   </div>
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import './index.scss'
-import {useSearchState, getSearchTextFromURL} from '@/hooks/useSearch'
+import {getSearchTextFromURL} from '@/hooks/useContent'
 import {useEditor} from '@/hooks/useEditor'
 import {pushUrl} from '@/utils/router'
 import ContentList, {getFirstPageData} from '@/services/ContentList'

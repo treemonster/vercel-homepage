@@ -10,15 +10,19 @@
     }
     transition: .3s;
   }
-  .load-more{
+  .empty, .bottom{
     display: flex;
-    justify-content: center;
-    padding: 30px 0;
-  }
-  .loading-panel{
-    height: 300px;
-    display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+  }
+  .empty{
+    font-size: 32px;
+    font-weight: bold;
+    height: 300px;
+  }
+  .bottom{
+    height: 100px;
+    color: #777;
+    font-size: 22px;
   }
 }

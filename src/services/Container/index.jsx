@@ -1,4 +1,6 @@
 import React from 'react'
+import './index.scss'
 export default function(props) {
-  return <&=@/components/CenterContainer children={props.children} maxWidth={800} />
+  const {children, maxWidth=800}=props
+	return <div className='__view_scope' style={{width: maxWidth}}>{children}</div>
 }
