@@ -10,7 +10,6 @@ export async function fetchPayload() {
 }
 
 export default function({payload}) {
-  if(!payload.data) return null
   return <div className='__view_scope'>
     <CreateBtn />
     <ContentList firstPageData={payload.data} />

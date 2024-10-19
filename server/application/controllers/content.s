@@ -27,7 +27,7 @@ class contentController extends apiController{
   async listAction() {
     const {params, model}=this
     const {id, lastValidId, searchText=''}=params
-    const queryCount=3
+    const queryCount=5
     const list=await model.list({
       id: +id,
       count: queryCount,

@@ -136,7 +136,12 @@ export function useContentList(initState) {
     }
   }
   const buildFullList=arr=>{
-    return filterDeleted([...list, ...(arr || [])]).map(x=>getContentById(x.id) || x)
+    let ids=new Set
+    return filterDeleted([...list, ...(arr || [])]).map(x=>{
+      if(ids.has(x.id)) return;
+      ids.add(x.id)
+      return x
+    }).filter(Boolean).map(x=>getContentById(x.id) || x)
   }
   return {
     createList,

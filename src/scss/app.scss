@@ -6,9 +6,29 @@ html, body, .app{
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  *{
+    font-family: 'PingFang Regular';
+  }
 }
 body, p{
   margin: 0;
+}
+
+.payload-pending{
+	width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .error{
+    font-size: 56px;
+    .title{
+      display: flex;
+      align-items: center;
+      .bi{
+        font-size: 64px;
+      }
+    }
+  }
 }
 
 @media (max-width:750px){

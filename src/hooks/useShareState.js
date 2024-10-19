@@ -28,14 +28,11 @@ export function useShareState(k, _v=undefined, durable=false) {
       }
     }
   }, [])
-  React.useEffect(_=>{
-    ref.val=v
-    for(const f of funcs) {
-      if(f===set_v) continue
-      f(v)
-    }
-  }, [v])
-  return [v, set_v]
+  const _set_v=nv=>{
+    ref.val=nv
+    for(const f of funcs) f(nv)
+  }
+  return [v, _set_v]
 }
 export function createUseShareStateGroup(k, durable=false) {
   let i=0

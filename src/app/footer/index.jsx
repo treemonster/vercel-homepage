@@ -7,7 +7,6 @@ export async function fetchPayload() {
 }
 
 export default function({payload}) {
-  if(!payload.data) return <&=@/services/LoadingPayload payload={payload} />
   const text=payload?.data?.md
   return <div className='__view_scope'>
     <&=@/services/Container children={

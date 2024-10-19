@@ -3,6 +3,7 @@
 define('__APP__', __dirname+'/application')
 define('__IS_DEV__', process.env.myblog_environ==='dev')
 define('__READONLY__', process.env.myblog_write!=='on')
+define('__POST_MAXLEN__', __IS_DEV__? 50000: 5000)
 setDebug(__IS_DEV__)
 if(__IS_DEV__) define('__DEV_WEB_DIR__', __dirname+'/..')
 define('__WEB__', __dirname+'/public')

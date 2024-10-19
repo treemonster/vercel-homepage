@@ -112,7 +112,7 @@ export default function(props) {
         pushUrl(Router=>Router.Detail, {id: detail.id})
       }}>
         <div className='tip'>
-          view <&=@/components/Icon className='bi-arrow-right-circle-fill' size='small' />
+          full view <&=@/components/Icon className='bi-arrow-right-circle-fill' size='small' />
         </div>
       </div>}
 

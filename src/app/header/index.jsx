@@ -15,9 +15,7 @@ export async function fetchPayload() {
 }
 
 export default function({payload}) {
-  if(!payload.data) return <&=@/services/LoadingPayload payload={payload} />
-  const {data}=payload
-  const {readOnly, ...o}=data || {}
+  const {readOnly, ...o}=payload.data || {}
   return <div className='__view_scope'>
     <AppHeader isPlaceholder={true} {...o} />
     <AppHeader isPlaceholder={false} {...o} />
