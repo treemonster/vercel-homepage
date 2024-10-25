@@ -40,6 +40,9 @@
     ul, ol{
       padding-left: 40px;
       line-height: 2;
+      li{
+        white-space: normal;
+      }
     }
     blockquote{
       border-left: 10px solid #eee;

@@ -102,7 +102,7 @@ function AutofillPayload(props) {
     refetch: _=>set_status(S_FETCHING),
   }
 
-  return p.data? children({payload: p}): <LoadingPayload payload={p} />
+  return e.isDone? children({payload: p}): <LoadingPayload payload={p} />
 }
 
 function useUnique(callback) {
