@@ -14,4 +14,40 @@
       transform: translateX(-50%);
     }
   }
+  .content-list{
+    position: relative;
+    width: 100%;
+    .v-fade{
+      position: relative;
+      min-height: 250px;
+      &.v-fade-hide{
+        opacity: 0;
+        transform: scale(.6);
+        transform-origin: center;
+      }
+      transition: .3s;
+    }
+    .loading-place{
+      display: flex;
+      justify-content: center;
+      padding: 30px 0;
+
+      .empty, .bottom{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .empty{
+        font-size: 32px;
+        font-weight: bold;
+        height: 300px;
+      }
+      .bottom{
+        height: 100px;
+        color: #777;
+        font-size: 22px;
+      }
+
+    }
+  }
 }

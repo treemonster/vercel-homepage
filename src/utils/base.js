@@ -13,9 +13,17 @@ export function sleep(t) {
   return new Promise((r) => setTimeout(r, t));
 }
 
-const _window = window.constructor === Object ? (window._windowObject = {}) : {};
+export function isNodeSide() {
+  return window.constructor===Object
+}
+
+const csrWindow={}
 const _useVarKey=Symbol()
 export function useVar(key, initialValue = {}) {
+  const _window=isNodeSide()? (_=>{
+    window._windowObject=window._windowObject || {}
+    return window._windowObject
+  })(): csrWindow
   _window[_useVarKey] = _window[_useVarKey] || {};
   return (_window[_useVarKey][key] =
     _window[_useVarKey][key] ||
@@ -26,4 +34,8 @@ export function useVar(key, initialValue = {}) {
         return any;
       }
     })(initialValue));
+}
+
+export function assert(x) {
+  if(!x) throw new Error(`Uncaught AssertionError [ERR_ASSERTION]: ${x} == true`)
 }

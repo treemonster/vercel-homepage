@@ -1,153 +1,240 @@
+
 import React from 'react'
+import {createStoreValue} from '@/hooks/useStore'
 import {fetch} from '@/utils/fetch'
-import {useVar} from '@/utils/base'
-import {parseUrl} from '@/utils/url'
-import {createUseShareStateGroup, useShareState} from '@/hooks/useShareState'
+import {text as searchText} from './useSearchText'
 
-const STORE_PREFIX='USE_CONTENT'
+/**
+ Contents={
+   [contentId]: StoreValue({title,. tags, ...}),
+   ...
+ }
+ */
+export const Contents={}
 
-function getContentStore() {
-  return useVar(STORE_PREFIX+'/CONTENT_DATA_STORE', {})
-}
+/**
+ Edits={
+   [contentId]: StoreValue({title,. tags, ...}),
+   ...
+ }
+ */
+export const Edits={}
 
-export function getContentById(id) {
-  return getContentStore()[id] || null
-}
+/**
+ ContentKwList={
+   [keyword]: StoreValue({
+     arr: [...contentIds],
+     isEnd: false,
+     nextParam: null,
+     isFetching: false,
+     isError: false,
+   }),
+   ...
+ }
+ */
+export const ContentKwList={}
 
-export function useContentStateById(id, _detail=null) {
-  const useShareState=createUseShareStateGroup(STORE_PREFIX+'/detail#'+id)
-  const [title, set_title]=useShareState(_detail?.title || '')
-  const [tags, set_tags]=useShareState(_detail?.tags || '')
-  const [summary, set_summary]=useShareState(_detail?.summary || '')
-  const [content, set_content]=useShareState(_detail?.content || '')
-  const [create_at, set_create_at]=useShareState(_detail?.create_at || 0)
-  const {addNew}=useCreateList()
-  const {deleteById}=useDeleteList()
+/**
+ CreateList=[...contentIds]
+ */
+export const CreateList=createStoreValue([])
 
-  function updateContentById(id, x) {
-    Object.assign(getContentStore()[id]=getContentStore()[id] || {}, x, {id})
-  }
+/**
+ DeleteList=[...contentIds]
+ */
+export const DeleteList=createStoreValue([])
 
-  React.useEffect(_=>{
-    updateContentById(id, {title, tags, content, summary, create_at})
-  }, [title, tags, summary, content, create_at])
+/**
+ SsrList=[...contentIds]
+ */
+export const SsrList=createStoreValue([])
 
-  const doCreate=async _=>{
-
-    const {id: _id, summary, create_at}=await fetch('/content/create', {title, tags, content})
-    updateContentById(_id, {title, tags, content, summary, create_at})
-    addNew(getContentById(_id))
-    set_title('')
-    set_tags('')
-    set_summary('')
-    set_content('')
-
-  }
-
-  const doUpdate=async _=>{
-
-    const {summary}=await fetch('/content/update', {id, title, tags, content})
-    set_summary(summary)
-
-  }
-
-  const doDelete=async _=>{
-    await fetch('/content/delete', {id})
-    deleteById(id)
-  }
-
-  return {
-    title, set_title,
-    tags, set_tags,
-    summary, set_summary,
-    content, set_content,
-    create_at, set_create_at,
-
-    doCreate,
-    doUpdate,
-    doDelete,
-  }
-
-}
-
-function useCreateList() {
-  const [list, set_list]=useShareState(STORE_PREFIX+'/newlist', [])
-  const addNew=li=>{
-    list.unshift(li)
-    set_list([...list])
-  }
-  return {list, addNew}
-}
-
-function useDeleteList() {
-  const [deletes, set_deletes]=useShareState(STORE_PREFIX+'/deletes', [])
-  const filterDeleted=arr=>arr.map(x=>deletes.includes(x.id)? null: x).filter(Boolean)
-  const deleteById=id=>{
-    if(deletes.includes(id)) return;
-    deletes.push(id)
-    set_deletes([...deletes])
-  }
-  return {deletes, deleteById, filterDeleted}
-}
-
-export function getSearchTextFromURL() {
-  return parseUrl().query?.s || ''
-}
-
-export function useSearchText() {
-  return useShareState(STORE_PREFIX+'/searchtext', _=>getSearchTextFromURL())
-}
-
-export function useContentList(initState) {
-  const [o, set_o]=useShareState(STORE_PREFIX+'/listbyst', _=>{
-    if(!initState) return {}
-    const {
-      bySearchText,
-      payloadList,
-      lastValidId,
+export async function fetchList(searchText, param=null) {
+  if(!param) {
+    const [{id: lastValidId}, {list: nextList, isEnd}]=await Promise.all([
+      fetch('/content/getLastId', {searchText}, 'firstpage-lastid'),
+      fetch('/content/list', {id: -1, searchText}, 'firstpage-list'),
+    ])
+    return {
       isEnd,
-    }=initState
-    return {
-      [bySearchText]: {
-        arr: payloadList,
-        isEnd,
+      nextList,
+      nextParam: {
         lastValidId,
-      }
+        id: nextList[nextList.length-1]?.id,
+      },
     }
-  })
-  const {list}=useCreateList()
-  const {deletes, filterDeleted}=useDeleteList()
-  const createList=(searchText, {arr, lastValidId, isEnd})=>{
-    o[searchText]={arr, isEnd, lastValidId}
-    set_o({...o})
-  }
-  const appendToList=(searchText, {nextList, isEnd})=>{
-    const e=o[searchText]
-    e.arr=e.arr.concat(nextList)
-    e.isEnd=isEnd || false
-    set_o({...o})
-  }
-  const getList=(searchText)=>{
-    const e=o[searchText]
+  }else{
+    const {list: nextList, isEnd}=await fetch('/content/list', {searchText, ...param})
     return {
-      arr: e?.arr || [],
-      isEnd: e?.isEnd || false,
-      lastValidId: e?.lastValidId || null,
+      isEnd,
+      nextList,
+      nextParam: {
+        lastValidId: param.lastValidId,
+        id: nextList[nextList.length-1]?.id || param.id,
+      },
     }
   }
-  const buildFullList=arr=>{
-    let ids=new Set
-    return filterDeleted([...list, ...(arr || [])]).map(x=>{
-      if(ids.has(x.id)) return;
-      ids.add(x.id)
-      return x
-    }).filter(Boolean).map(x=>getContentById(x.id) || x)
+}
+export async function fetchDetail(id) {
+  return await fetch('/content/detail', {id})
+}
+export const CREATE_ID=0
+const bak=(_=>{
+  const key='contentBackup'
+  const _read=_=>{
+    try{
+      return JSON.parse(localStorage.getItem(key)) || {}
+    }catch(e) {}
+    return {}
   }
+  const _save=fn=>{
+    const s=_read()
+    fn(s)
+    try{
+      localStorage.setItem(key, JSON.stringify(s))
+    }catch(e) {}
+  }
+  const save=(id, o)=>{
+    _save(s=>{
+      s[id]=o
+    })
+  }
+  const remove=id=>{
+    _save(s=>{
+      delete s[id]
+    })
+  }
+  const read=id=>_read()[id]
+  return {read, save, remove}
+})()
+export function useContentById(id, editing=false) {
+  const read=getContentById(id, false).useVal()
+  const write=getContentById(id, true).useVal()
+  return editing? write: read
+}
+export async function doCreate() {
+  const e=getContentById(CREATE_ID, true).val()
+  if(!e) return;
+  const {title, tags, content}=e
+  const {id, summary, create_at}=await fetch('/content/create', {title, tags, content})
+  updateContent({id, title, tags, content, summary, create_at})
+  Edits[CREATE_ID].set(formatContent())
+  CreateList.set([id, ...CreateList.val()])
+  bak.remove(CREATE_ID)
+}
+export async function doDeleteId(id) {
+  await fetch('/content/delete', {id})
+  delete Contents[id]
+  delete Edits[id]
+  DeleteList.set([...store.DeleteList, id])
+  bak.remove(id)
+}
+export async function doSaveById(id) {
+  const e=getContentById(id, true).val()
+  if(!e) return;
+  const {title, tags, content}=e
+  const {summary}=await fetch('/content/update', {id, title, tags, content})
+  updateContent({id, title, tags, content, summary})
+  bak.remove(id)
+}
+export function initEditContentById(id) {
+  Edits[id].set(formatContent(Object.assign(
+    {},
+    getContentById(id, false).val(),
+    bak.read(id),
+  )))
+}
+export function editContentValue(id, kvs) {
+  const e=Edits[id]
+  const v={...e.val(), ...kvs}
+  e.set(v)
+  bak.save(id, v)
+}
+export function appendToKwList(kw, {nextList=[], ...param}) {
+  const curr=getContentKwListByKw(kw)
+  const v=curr.val()
+  curr.set(Object.assign({}, v, {
+    ids: v.ids.concat(nextList.map(x=>x.id)),
+    ...param,
+  }))
+  updateContents(nextList)
+}
+export function useKwList(kw) {
+  const createIds=CreateList.useVal()
+  const deleteIds=DeleteList.useVal()
+  const ssrIds=SsrList.useVal()
+  const curr=getContentKwListByKw(kw).useVal()
+  return React.useMemo(_=>{
+    const ret={
+      ids: [],
+      isEnd: curr.isEnd,
+      isError: curr.isError,
+      isFetching: curr.isFetching,
+    }
+    for(let id of [...createIds, ...curr.ids]) {
+      if(deleteIds.includes(id)) continue
+      ret.ids.push({id, isFromSsr: ssrIds.includes(id)})
+    }
+    return ret
+  }, [kw, createIds, deleteIds, ssrIds, curr])
+}
+export async function loadNextPage(kw) {
+  const curr=getContentKwListByKw(kw)
+  const v=curr.val()
+  if(v.isFetching) return;
+  v.isError=false
+  v.isFetching=true
+  curr.set({...v})
+
+  const update={
+    isFetching: false,
+  }
+  try{
+    Object.assign(update, await fetchList(kw, v.nextParam), {
+      isError: false,
+    })
+  }catch(e) {
+    update.isError=true
+  }
+  appendToKwList(kw, update)
+}
+export function updateContent(a) {
+  updateContents([a])
+}
+
+function formatContent(c=null) {
   return {
-    createList,
-    appendToList,
-    getList,
-    buildFullList,
-    watches: [list, deletes],
+    id: c?.id || CREATE_ID,
+    title: c?.title || '',
+    tags: c?.tags || '',
+    content: c?.content || '',
+    summary: c?.summary || '',
+    create_at: c?.create_at || 0,
   }
+}
+function updateContents(arr) {
+  for(const {id, ...kvs} of arr) {
+    if(!Contents[id]) {
+      Contents[id]=createStoreValue({})
+    }
+    const v=Contents[id]
+    v.set(formatContent({id, ...v.val(), ...kvs}))
+  }
+}
+function getContentKwListByKw(kw) {
+  if(!ContentKwList[kw]) {
+    ContentKwList[kw]=createStoreValue({
+      ids: [],
+      nextParam: null,
+      isEnd: false,
+      isFetching: false,
+      isError: false,
+    })
+  }
+  return ContentKwList[kw]
+}
+function getContentById(id, fromEdit=false) {
+  const stor=fromEdit? Edits: Contents
+  if(!stor[id]) stor[id]=createStoreValue(formatContent({id}))
+  return stor[id]
 }

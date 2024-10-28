@@ -1,31 +1,32 @@
 import React from 'react'
 import App, * as app from './App'
 
+export async function init(payload) {
+  const r='init'
+  return app?.[r]?.(payload) || null
+}
+
 #ifndef IS_NODE_TARGET
 
-import ReactDom from 'react-dom'
+import ReactDOM from 'react-dom'
 import './scss/app.scss'
 const appRoot=document.querySelector('.app')
 const payload=window.__ssr_payload__
-if(!payload) {
-  ReactDom.render(<App payload={null} />, appRoot)
-}else{
-  ReactDom.hydrate(<App payload={payload} />, appRoot)
-}
+
+window.KAZE2024_JS_READY=true
+
+;(async _=>{
+  if(payload) await init(payload)
+  ReactDOM.hydrate(<App />, appRoot)
+})()
 
 #else
 
 // server
 import Server from 'react-dom/server'
-export {initRequest as prepareCtx} from './nodeAdapter'
 
-export function renderToString(payload) {
-  return Server.renderToString(<App payload={payload} />)
-}
-
-export function fetchPayload() {
-  const r='fetchPayload'
-  return app?.[r]?.() || null
+export function renderToString() {
+  return Server.renderToString(<App />)
 }
 
 #endif

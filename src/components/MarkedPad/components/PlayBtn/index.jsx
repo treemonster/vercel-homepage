@@ -16,6 +16,10 @@ export default function(props) {
       className='bi-play-fill'
       size='small'
       onClick={_=>{
+        if(!window.__SUPPORT_ESMODULE__) {
+          alert('Emm.. your browser is too old to support this feature.. :(')
+          return
+        }
         const url=URL.createObjectURL(new Blob([toHTML(sources)], {type: 'text/html'}))
         window.open(url)
       }}

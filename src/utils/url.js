@@ -1,5 +1,5 @@
 
-export function buildUrl(x, params) {
+export function buildUrl(x, params={}) {
   let r=[]
   for(let k in params) {
     r.push(k+'='+encodeURIComponent(params[k]))

@@ -10,8 +10,8 @@ class apiController{
     this._start=Date.now()
   }
   finish(err, ret) {
-    if(__SSR_TIMEOUT__) return;
-    if(!__IS_SSR__) {
+    if(Lib_ssr.__IS_SSR_PAYLOAD_TIMEOUT__) return;
+    if(!Lib_ssr.__IS_SSR__) {
       setResponseHeaders({
         'x-response-api-cost': Date.now()-this._start,
       })

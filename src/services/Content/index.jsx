@@ -5,9 +5,12 @@ import Toast from '@/components/Toast'
 import {time2str} from '@/utils/format'
 import {str2color} from '@/utils/color'
 
-import {pushUrl, replaceUrl, goBack} from '@/utils/router'
-import {useContentStateById, useSearchText} from '@/hooks/useContent'
-import {useEditor} from '@/hooks/useEditor'
+import * as historyAction from '@/hooks/useHistoryAction'
+import * as content from '@/hooks/useContent'
+import {Editing} from '@/hooks/useAppInfo'
+import {text as searchText} from '@/hooks/useSearchText'
+import {CustomRouter} from '@/AppRouter'
+import Link from '@/components/Link'
 
 async function fetchWithToast([begin, done], task, cb) {
   Toast.show(begin)
@@ -21,79 +24,96 @@ async function fetchWithToast([begin, done], task, cb) {
 }
 
 export default function(props) {
-  const {type, detail=null}=props
-  const [enableEditor]=useEditor()
-  const {
-    title, set_title,
-    tags, set_tags,
-    summary, set_summary,
-    content, set_content,
-    create_at, set_create_at,
-
-    doCreate,
-    doUpdate,
-    doDelete,
-  }=useContentStateById(detail?.id || 0, detail)
-  const [, set_searchText]=useSearchText()
+  const {isSmallView, isDetailView, isCreateView}=props
+  const id=isCreateView? content.CREATE_ID: props.id
+  const isEditing=Editing.useVal()
   const [editing, set_editing]=React.useState(false)
   React.useEffect(_=>{
-    if(!content && detail?.content) {
-      set_content(detail.content)
-    }
-    if(type==='new') set_editing(true)
+    if(isCreateView) set_editing(true)
   }, [])
+  React.useEffect(_=>{
+    if(!editing) return;
+    content.initEditContentById(id)
+  }, [editing])
+  const detail=content.useContentById(id, editing)
 
-  return <div className={'__view_scope '+type}>
+  function edit(kv) {
+    content.editContentValue(id, kv)
+  }
+
+  return <div className={[
+    '__view_scope',
+    isCreateView && 'new',
+    isDetailView && 'detail',
+    isSmallView && 'small',
+  ].filter(Boolean).join(' ')}>
     <div className={'title-line '+(editing? 'editing': '')}>
 
       <div className='left'>
         <div className='item'>
-          <&=@/components/Text readOnly={!editing} value={title} onChange={value=>{
-            set_title(value)
-          }} className='title' />
-          {!editing && create_at? <span className='date'>{time2str(create_at)}</span>: null}
+          <&=@/components/Text
+            readOnly={!editing}
+            value={detail.title}
+            onChange={title=>edit({title})}
+            className='title'
+          />
+          {!editing && detail.create_at?
+            <span className='date'>{time2str(detail.create_at)}</span>:
+            null
+          }
         </div>
         <div className='item right'>
-          <&=@/components/Text readOnly={!editing} value={tags} className='tags' onChange={value=>{
-            set_tags(value.split(',').map(x=>x.trim()).join(', '))
-          }} render={x=>{
-            return x.split(',').map(v=>{
-              if(!v) return null
-              v=v.trim()
-              return <div className='tag' key={v} onClick={_=>{
-                set_searchText('tag: '+v)
-                pushUrl(Router=>Router.Index)
-              }} style={{backgroundColor: str2color(v)}}>{v}</div>
-            })
-          }} />
+          <&=@/components/Text
+            readOnly={!editing}
+            value={detail.tags}
+            className='tags'
+            onChange={value=>{
+              edit({tags: value.split(',').map(x=>x.trim()).join(', ')})
+            }}
+            render={x=>{
+              return x.split(',').map(v=>{
+                if(!v) return null
+                v=v.trim()
+                const s='tag: '+v
+                return <Link
+                  className='tag'
+                  key={v}
+                  onClick={_=>searchText.set(s)}
+                  url={CustomRouter.Index.href}
+                  params={{s}}
+                  style={{backgroundColor: str2color(v)}}
+                >{v}</Link>
+              })
+            }}
+          />
         </div>
       </div>
 
-      {enableEditor && <&=@/components/EditBox
+      {isEditing && <&=@/components/EditBox
         className='btns'
         isEditing={editing}
-        onEdit={type==='small'? null: _=>{
-          if(type==='new') {
-            fetchWithToast(['saving..', 'saved'], doCreate(), _=>{
-              replaceUrl(Router=>Router.Index)
+        onEdit={isSmallView? null: _=>{
+          if(isCreateView) {
+            fetchWithToast(['saving..', 'saved'], content.doCreate(), _=>{
+              historyAction.replaceUrl(CustomRouter.Index.href)
             })
           }else{
             set_editing(!editing)
             if(editing) {
-              fetchWithToast(['saving..', 'saved'], doUpdate())
+              fetchWithToast(['saving..', 'saved'], content.doSaveById(id))
             }
           }
         }}
         onDelete={_=>{
-          if(type==='new') {
-            goBack()
+          if(isCreateView) {
+            historyAction.goBack()
             return
           }
           if(editing) {
             set_editing(false)
           }else{
             if(!confirm('delete it?')) return;
-            fetchWithToast(['deleting..', 'deleted'], doDelete())
+            fetchWithToast(['deleting..', 'deleted'], content.doDeleteId(id))
           }
         }} />
       }
@@ -101,22 +121,17 @@ export default function(props) {
     </div>
     <div className={'markedpad '+(editing? '': 'readmode')}>
       <&=@/components/MarkedPad
-        initialValue={type==='small'? summary: content}
-        onChange={newContent=>{
-          set_content(newContent)
-        }}
+        initialValue={isSmallView? detail.summary: detail.content}
+        onChange={nextContent=>edit({content: nextContent})}
         enableInput={editing}
       />
 
-      {!editing && type==='small' && <div className='detail' onClick={_=>{
-        pushUrl(Router=>Router.Detail, {id: detail.id})
-      }}>
+      {!editing && isSmallView && <Link className='detail' url={CustomRouter.Detail.href} params={{id}}>
         <div className='tip'>
           full view <&=@/components/Icon className='bi-arrow-right-circle-fill' size='small' />
         </div>
-      </div>}
+      </Link>}
 
     </div>
   </div>
-
 }

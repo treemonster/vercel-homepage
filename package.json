@@ -3,7 +3,7 @@
     "dev": "node build/index.js dev",
     "build": "node build/index.js build",
     "v-build": "bash build-vercel/build.sh",
-    "v-prod": "sptcd -rindex.s -wserver -n2"
+    "v-prod": "sptcd -rindex.s -wserver -n3"
   },
   "dependencies": {
     "multiparty": "^4.2.3",
@@ -13,14 +13,14 @@
     "sptc": "0.0.23"
   },
   "devDependencies": {
-    "intersection-observer": "^0.12.2",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.0",
     "@craco/craco": "^6.1.1",
     "bootstrap-icons": "^1.11.3",
     "chalk": "^4.1.0",
-    "cross-env": "^7.0.3",
+    "cross-env": "7.0.3",
     "fs-extra": "^10.1.0",
-    "marked": "^5.1.2",
+    "intersection-observer": "^0.12.2",
+    "marked": "5.1.2",
     "mini-css-extract-plugin": "1.6.2",
     "null-loader": "^4.0.1",
     "open": "^8.4.2",
@@ -46,6 +46,6 @@
     ]
   },
   "engines": {
-    "node": ">= 12.22.12"
+    "node": ">= 18.16.0"
   }
 }

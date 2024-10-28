@@ -87,7 +87,7 @@ class ContentModel extends Lib_psql{
   }
 
   content2summary(content) {
-    let c=content.replace(/\n[^\n]+$/, '')
+    let c=(content || '').replace(/\n[^\n]+$/, '')
     const r=c.match(/```/g)
     if(r && r.length%2) {
       c=c.substr(0, c.lastIndexOf('```'))

@@ -1,21 +1,19 @@
 .__view_scope{
-  .fixed, .placeholder{
+  .header{
+    position: relative;
+    width: 100%;
+  }
+  .fixed, .normal{
     width: 100%;
     min-height: 180px;
     z-index: 10;
     padding-bottom: 20px;
+    background: #fff;
+    box-shadow: 0 0 50px #333;
   }
   .fixed{
     position: fixed;
     top: 0;
-    background: #fff;
-    box-shadow: 0 0 50px #333;
-    .with-back{
-      background-image: url(./imgs/back.png);
-      background-repeat: no-repeat;
-      background-size: contain;
-      background-position: right center;
-    }
   }
   .placeholder{
     position: relative;
@@ -26,6 +24,7 @@
     align-items: center;
     height: 60px;
     line-height: 60px;
+    user-select: none;
     .left{
       white-space: nowrap;
       display: flex;
@@ -85,6 +84,12 @@
     padding-left: 30px;
     padding-right: 0px;
     overflow: hidden;
+    transition: .3s;
+    opacity: 1;
+    &.disable-search{
+      opacity: .7;
+      cursor: not-allowed;
+    }
     input{
       padding: 0;
     }

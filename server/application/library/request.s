@@ -7,6 +7,7 @@ const qs=require('querystring')
 class Lib_request{
 	constructor(data) {
 		this._data=data
+		this._query=null
 	}
 
 	readUpstream(upstream, option={}) {
@@ -76,5 +77,17 @@ class Lib_request{
     return [null, up]
   }
 
+	getQuery() {
+	  if(!this._query) {
+			const url=$_RAW_REQUEST['url']
+			const q=url.substr(url.indexOf('?'), url.length)
+			if(q.charAt(0)==='?') {
+				this._query=qs.parse(q.substr(1))
+			}else{
+				this._query={}
+			}
+		}
+		return this._query
+	}
 
 }

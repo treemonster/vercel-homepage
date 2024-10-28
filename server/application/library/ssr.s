@@ -2,33 +2,47 @@
 
 class Lib_ssr{
 
-	isQueryFlag(v) {
-		return $_RAW_REQUEST['url'].indexOf(v)>-1
-	}
+	static __IS_SSR__=false;
 
-	timelimitQuery(query) {
-		return Promise.race([query, Utils.sleep(__SSR_PAYLOAD_TIMEOUT__, query)])
-	}
+	static __IS_SSR_PAYLOAD_TIMEOUT__=false;
 
-	buildContext() {
-		const exports={}
+  getDistDir() {
+    return __IS_DEV__? __DEV_WEB_DIR__+'/dist': __WEB__+'/app'
+  }
+
+  timelimitQuery(query) {
+    return Promise.race([query, Utils.sleep(__SSR_PAYLOAD_TIMEOUT__, query)])
+  }
+
+  buildContext() {
+    const exports={}
     const self={module: {exports}, require}
+
     const NOOP=function() {}
     Object.assign(self, {
-      self,
-      location: {
-        href: 'http://'+$_RAW_REQUEST['headers']['host']+$_RAW_REQUEST['url']
-      },
+      window: self,
       addEventListener: NOOP,
       WebSocket: NOOP,
       setInterval: NOOP,
       setTimeout: NOOP,
+      self,
     })
+
+    const location={}
+    const navigator={}
+    const document={}
+    Object.assign(self, {location, navigator, document})
+    const href='http://'+$_RAW_REQUEST['headers']['host']+$_RAW_REQUEST['url']
+    location.href=href
+    ; [, location.pathname, location.search]=href.match(/:\/\/[^/]+([^\?]+)(.*)/)
+    navigator.userAgent=$_RAW_REQUEST['headers']['user-agent'] || 'unknown'
+    document.cookie=$_RAW_REQUEST['headers'].cookie || ''
+
     self.ServerFetch=async (url, option={})=>{
       const {resolve, execute}=include(__ROUTER__)
       try{
-				await this.timelimitQuery(execute(resolve(url), {ssrData: option.body || {}}))
-        const [code, ]=getResponseStatus()
+        await this.timelimitQuery(execute(resolve(url), {ssrData: option.body || {}}))
+        const [code]=getResponseStatus()
         return {
           statusCode: code,
           responseHeaders: getResponseHeaders(),
@@ -36,32 +50,18 @@ class Lib_ssr{
         }
       }catch(e) {}
     }
+
     if(__IS_DEV__) self.console=console
-    const appCtx={
-      url: self.location.href,
-      headers: $_RAW_REQUEST['headers'],
-    }
-    return [self, appCtx]
-	}
 
-	async render() {
-		const arg={
-			USE_EDURA: this.isQueryFlag('edura=1'),
-      css: [],
-      venderJs: [],
-			props: {},
-      ssrHTML: null,
-      assetJs: [],
-			extHeaderStr: '',
-		}
-		const isForceCsr=this.isQueryFlag('force_csr=1')
+    return self
+  }
 
-	  arg.venderJs.push('/assets/externals/js/highlight.min.js')
-	  arg.css.push('/assets/externals/css/github-dark.min.css')
-
-		const $_distDir=__IS_DEV__? __DEV_WEB_DIR__+'/dist': __WEB__+'/app'
-
-		const vm1=((filename, contentWrapper)=>Utils.compileFile(filename, {
+  getVm() {
+    const filename=this.getDistDir()+'/server/index.js'
+    const contentWrapper=__IS_DEV__?
+      source=>source.replace(/(throw new Error.+?HMR.+?Hot Module Replacement is disabled.)/, 'return;$1'):
+      undefined
+    return Utils.compileFile(filename, {
       contentWrapper,
       compileFunc: source=>{
         const vm=require('vm')
@@ -70,53 +70,72 @@ class Lib_ssr{
         return new vm.Script(source, fn)
       },
       customCache: (Application.ssrVmCache=Application.ssrVmCache || {}),
-    }))(
-			$_distDir+'/server/index.js',
-			__IS_DEV__?
-			  source=>source.replace(/(throw new Error.+?HMR.+?Hot Module Replacement is disabled.)/, 'return;$1'):
-				undefined,
-    )
+    })
+  }
 
-		const [ctx, appCtx]=this.buildContext()
-		const e=vm1.runInNewContext(ctx)
-		e.prepareCtx && e.prepareCtx(appCtx)
-		define('__IS_SSR__', true)
-		const payload=isForceCsr? null: await this.timelimitQuery(e.fetchPayload()).catch(_=>{
-			define('__SSR_TIMEOUT__', true)
-			return null
-		})
-		arg.ssrHTML=e.renderToString(payload)
-		arg.props.__ssr_payload__=JSON.stringify(payload)
-
+	getAssets() {
 		const path=require('path')
-		const assets_fn=path.resolve($_distDir+'/assets.json')
+		const assets_fn=path.resolve(this.getDistDir()+'/assets.json')
 		const assets=require(assets_fn)
 		if(__IS_DEV__) delete require.cache[assets_fn]
+		return assets
+	}
 
-		arg.css.push((__IS_DEV__? '': '/assets/app/')+assets.css)
+  async render() {
+	  Lib_ssr.__IS_SSR__=true
 
-		if(__IS_DEV__) {
-			arg.extHeaderStr='<style type=text/css>iframe{display:none!important;}</style>'
-		}else{
-			Object.assign(arg.props, {
-				React: 'window.React',
-				ReactDom: 'window.ReactDOM',
-			})
-			arg.venderJs.push(
-				'/assets/externals/js/react.production.min.js',
-				'/assets/externals/js/react-dom.production.min.js',
-			)
+    const req=new Lib_request
+    const {
+      eruda: USE_ERUDA,
+      force_csr: IS_FORCE_CSR,
+    }=req.getQuery()
+
+    const srvModule=this.getVm().runInNewContext(this.buildContext())
+
+    let payload=null
+		try{
+			if(!IS_FORCE_CSR) payload=await this.timelimitQuery(srvModule.init())
+		}catch(e) {
+			Lib_ssr.__IS_SSR_PAYLOAD_TIMEOUT__=true
 		}
 
-		if(__IS_DEV__) {
-  		arg.assetJs.push({src: assets.js})
-		  if(assets.hot) arg.assetJs.push({src: assets.hot, isAsync: true})
-		}else{
-			arg.assetJs.push({src: '/assets/app/'+assets.js, isAsync: true})
-		}
+    const ssrHTML=srvModule.renderToString()
 
+    const assets=this.getAssets()
+
+		const arg={
+			USE_EDURA,
+			ssrHTML,
+			payload,
+			extraDevHTMLCss: '',
+			extraDevHTMLJs: '',
+			js: [],
+			css: [],
+		}
+		const {css, js}=arg
+
+    js.push('/assets/externals/js/highlight.min.js')
+    css.push('/assets/externals/css/github-dark.min.css')
+
+		if(__IS_DEV__) {
+			arg.extraDevHTMLCss=`
+			  <style type=text/css>iframe{display:none!important;}</style>
+			  <link href="${assets.css}" rel="stylesheet" type="text/css" />
+			`
+			arg.extraDevHTMLJs=`
+				<script src="${assets.js}"></script>
+				<script src="${assets.hot || ''}"></script>
+			`
+		}else{
+			js.push(
+        '/assets/externals/js/react.production.min.js',
+        '/assets/externals/js/react-dom.production.min.js',
+				`/assets/app/${assets.js}`,
+      )
+			css.push(`/assets/app/${assets.css}`)
+		}
 
     include(__dirname+'/ssr.html.s', arg)
 
-	}
+  }
 }

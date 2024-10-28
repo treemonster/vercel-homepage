@@ -86,7 +86,7 @@ function CodePanel(props) {
           className={'tab'+(i===index? ' active': '')}
         >{filename}</div>)}
       </div>
-      {play && <&=@/components/PlayBtn className='playbtn' sources={codes.map(x=>({
+      {play && <&=./components/PlayBtn className='playbtn' sources={codes.map(x=>({
         type: x.type,
         value: x.code,
         filename: x.filename,
@@ -138,5 +138,5 @@ export default function(props) {
     }} className='box marked' ref={markedRef} key={enableInput? 'write': 'read'}>
       {output}
     </div>
-  </div>, [inpVal, enableInput])
+  </div>, [inpVal, enableInput, output])
 }

@@ -116,7 +116,7 @@ function createWebpackConfig({isServer=false, env='development'}) {
       'react-dom': 'react-dom',
     }: {
       react: 'React',
-      'react-dom': 'ReactDom',
+      'react-dom': 'ReactDOM',
     }
   }
 

@@ -1,110 +1,112 @@
 import React from 'react'
 import './index.scss'
 import {fetch} from '@/utils/fetch'
-import {pushUrl, getPageRef, isCurrent} from '@/utils/router'
-import {useSearchText} from '@/hooks/useContent'
-import {useEditor} from '@/hooks/useEditor'
+import * as appInfo from '@/hooks/useAppInfo'
+import * as search from '@/hooks/useSearchText'
+import * as historyAction from '@/hooks/useHistoryAction'
+import {CustomRouter, isCurrent} from '@/AppRouter'
 
-export async function fetchPayload() {
-  const [{readOnly}, {md: text}, {md: leftText}]=await Promise.all([
-    fetch('/app/isReadOnly'),
-    fetch('/app/header'),
-    fetch('/app/headerLeftText'),
-  ])
-  return {readOnly, text, leftText}
+export async function init(payload) {
+  if(!payload) {
+    const [{readOnly}, {md: headerText}, {md: leftText}]=await Promise.all([
+      fetch('/app/isReadOnly'),
+      fetch('/app/header'),
+      fetch('/app/headerLeftText'),
+    ])
+    payload={readOnly, headerText, leftText}
+  }
+  const {readOnly, headerText, leftText}=payload
+  appInfo.ReadOnly.set(readOnly)
+  appInfo.HeaderText.set(headerText)
+  appInfo.HeaderLeftText.set(leftText)
+  return payload
 }
 
-export default function({payload}) {
-  const {readOnly, ...o}=payload.data || {}
+export default function() {
+  const readOnly=appInfo.ReadOnly.useVal()
   return <div className='__view_scope'>
-    <AppHeader isPlaceholder={true} {...o} />
-    <AppHeader isPlaceholder={false} {...o} />
+    <AppHeader />
     {!readOnly && <SupportEditor />}
   </div>
 }
 
 function AppHeader(props) {
-  const {isPlaceholder, text, leftText}=props
-  const {page}=getPageRef()
-  const leftRef=React.useRef(null)
-  const [, set_searchText]=useSearchText()
-
+  const [headerText, set_headerText]=appInfo.HeaderText.use()
+  const [height, set_height]=React.useState(0)
+  const headerRef=React.useRef(null)
   React.useEffect(_=>{
-    const c=leftRef.current
+    set_height(headerRef.current.offsetHeight)
+  }, [headerText])
+
+  return <div className='header' style={height? {height}: {}}>
+    <div className={(height? 'fixed': 'normal')} ref={headerRef}>
+      <&=@/services/Container
+        children={<>
+          <&=@/services/AppInfo
+            textStore={appInfo.HeaderText}
+            action='/app/saveHeader'
+          />
+          <div className='tabs'>
+            <div className='left'>
+              <LeftMenu />
+            </div>
+            <div className='right'>
+              <SearchBtn />
+            </div>
+          </div>
+        </>}
+      />
+    </div>
+  </div>
+}
+
+function LeftMenu(props) {
+  const menuRef=React.useRef(null)
+  React.useEffect(_=>{
+    const c=menuRef.current
     if(!c) return;
     c.addEventListener('click',e=>{
       e.preventDefault()
       const p=e.target.getAttribute('href')
       if(!p) return;
-      pushUrl(_=>p)
-      set_searchText('')
+      historyAction.pushUrl(p)
+      search.text.set('')
     })
   }, [])
-  return <div className={(isPlaceholder? 'placeholder': 'fixed')}>
-    <&=@/services/Container children={<>
-      <div className='with-back'>
-        <&=@/services/AppInfo
-          text={text}
-          action='/app/saveHeader'
-          isPlaceholder={isPlaceholder}
-        />
-      </div>
-
-      <div className='tabs'>
-        {
-          isPlaceholder?
-            null:
-            <>
-              <div className='left' ref={leftRef}>
-                <&=@/services/AppInfo
-                  key={page}
-                  className='left-info'
-                  text={leftText}
-                  action='/app/saveHeaderLeftText'
-                  isPlaceholder={isPlaceholder}
-                  parser={x=>{
-                    const e=[]
-                    x.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, (_, text, link)=>{
-                      e.push(<a key={text} href={link} className={isCurrent(link)? 'active': ''}>{text}</a>)
-                    })
-                    return e
-                  }}
-                />
-              </div>
-              <div className='right'>
-                <SearchBtn />
-              </div>
-            </>
-        }
-      </div>
-
-    </>} />
-
+  historyAction.useVal()
+  return <div ref={menuRef}>
+    <&=@/services/AppInfo
+      className='left-info'
+      textStore={appInfo.HeaderLeftText}
+      action='/app/saveHeaderLeftText'
+      parser={x=>{
+        const e=[]
+        x.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, (_, text, link)=>{
+          e.push(<a key={text} href={link} className={isCurrent(link)? 'active': ''}>{text}</a>)
+        })
+        return e
+      }}
+    />
   </div>
 }
 
 function SearchBtn(props) {
-  const [searchText, set_searchText]=useSearchText()
-  const [inp, set_inp]=React.useState(searchText)
 
-  React.useEffect(_=>{
-    const t=setTimeout(_=>{
-      set_searchText(inp)
-    }, 200)
-    return _=>clearTimeout(t)
-  }, [inp])
-  React.useEffect(_=>{
-    if(inp!==searchText) set_inp(searchText)
-  }, [searchText])
+  const [inp, set_inp]=search.useInput()
 
-  return <div className='searchbox' onClick={_=>{
-    pushUrl(Router=>Router.Index)
+  const jsReady=appInfo.JavascriptReady.useVal()
+
+  return <div className={[
+    'searchbox',
+    !jsReady && 'disable-search',
+  ].filter(Boolean).join(' ')} onClick={_=>{
+    historyAction.pushUrl(CustomRouter.Index.href)
   }}>
     <&=@/components/Text
       className='search'
       value={inp}
       onChange={x=>set_inp(x)}
-      onConfirm={x=>set_searchText(x)}
+      onConfirm={x=>search.text.set(x)}
       readOnly={false}
     />
     {
@@ -116,13 +118,11 @@ function SearchBtn(props) {
 }
 
 function SupportEditor(props) {
-  const [enable, set_enable]=useEditor()
-  return <div className='editor-switch' onClick={_=>{
-    set_enable(!enable)
-  }}>
+  const [isEditing, set_isEditing]=appInfo.Editing.use()
+  return <div className='editor-switch' onClick={_=>set_isEditing(!isEditing)}>
     <&=@/components/Icon
-      className={enable? 'bi-unlock-fill': 'bi-lock-fill'}
-      isActive={enable? true: false}
+      className={isEditing? 'bi-unlock-fill': 'bi-lock-fill'}
+      isActive={isEditing? true: false}
     />
   </div>
 }

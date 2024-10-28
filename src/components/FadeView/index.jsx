@@ -1,6 +1,6 @@
 import React from 'react'
 import './index.scss'
-import useHistoryAction from '@/hooks/useHistoryAction'
+import * as historyAction from '@/hooks/useHistoryAction'
 import {sleep} from '@/utils/base'
 import {autoCleanList} from '@/utils/cache'
 
@@ -18,7 +18,7 @@ export default function(props) {
     },
     duration=160,
   }=props
-  const [actionType]=useHistoryAction()
+  const actionType=historyAction.useVal()
   const pages=React.useRef({arr: [], cur: 0}).current
   if(!pages.arr.length) pages.arr.push(render())
   const [pageInfo, set_pageInfo]=React.useState(_=>{

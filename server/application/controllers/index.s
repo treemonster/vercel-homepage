@@ -16,12 +16,11 @@ class indexController{
     const _fn=__WEB__+'/'+path.resolve(fn)
 
     const m=new Date(fs.statSync(_fn).mtime).toUTCString()
+    setResponseHeaders({'last-modified': m})
     if($_RAW_REQUEST['headers']['if-modified-since']===m) {
       setStatus(304, 'not modified')
-      setResponseHeaders({'content-length': 0})
       return
     }
-    setResponseHeaders({'last-modified': m})
 
     return new Promise(done=>{
       const rs=fs.createReadStream(_fn)
@@ -36,6 +35,7 @@ class indexController{
       setResponseHeaders({
         'content-type': mime,
         'content-length': fs.statSync(_fn).size,
+        'expires': 'Sun, 09 Dec 2035 09:13:56 GMT',
       })
       rs.on('data', buf=>echo(buf))
       rs.on('end', done)

@@ -91,16 +91,6 @@ const A={
       return str
     },
 
-    /\.jsx?/, ctx=>{
-      const {str, fn}=ctx
-      if(fn.match(/nodeAdapter.js/)) return str
-      if(!is_server(ctx)) return str
-      return `
-      import e from '@/nodeAdapter'
-      const {window, document, navigator, location}=e
-      `+str
-    },
-
     /\.(scss|jsx?)/, ctx=>{
       const {str, fn}=ctx
       const path=require('path')
@@ -108,6 +98,18 @@ const A={
       const ffn=path.resolve(fn).substr(src.length).replace(/\.[a-z\d]+$/, '')
       let t=ffn.replace(/[\/\\]+([^/\\]+)\.[^/\\]+$/, '').replace(/[^a-z\d_-]/ig, '_')
       return str.replace(/\b__view_scope\b/g, 'V_'+argv.RND+'_'+t)
+    },
+
+    /\.jsx?/, ctx=>{
+      const {str, fn}=ctx
+      return str.replace(/(?:^|\n)\s*enum\s*\{([^}]+)\}/g, (_, e)=>{
+        let ret=[]
+        e.replace(/\/\*[\s\S]*?\*\/|\/\/.+/g, '').split(',').map(x=>{
+          x=x.trim()
+          if(x) ret.push(`const ${x}="${x}";`)
+        })
+        return '\n'+ret.join('\n')+'\n'
+      })
     },
 
   ],

@@ -3,25 +3,19 @@ import './index.scss'
 
 import Toast from '@/components/Toast'
 import {fetch} from '@/utils/fetch'
-import {useShareState} from '@/hooks/useShareState'
-import {useEditor} from '@/hooks/useEditor'
+import {Editing} from '@/hooks/useAppInfo'
 
 export default function(props) {
-  const [enable]=useEditor()
+  const isEditing=Editing.useVal()
   const {
-    text: _text='',
+    textStore,
     action,
-    forPlaceholder=false,
     className='',
     parser=null,
   }=props
 
-  const [text, set_text]=useShareState('AppInfo#'+action, _text)
-  const [editable, set_editable]=React.useState(false)
-
-  React.useEffect(_=>{
-    if(_text!==text) set_text(_text)
-  }, [_text])
+  const [text, set_text]=textStore.use()
+  const [editing, set_editing]=React.useState(false)
 
   const _fetchWithToast=async _=>{
     Toast.show('saving..')
@@ -33,25 +27,21 @@ export default function(props) {
     }
   }
 
-  return <div className={[
-    '__view_scope',
-    className,
-    forPlaceholder && 'placeholder',
-  ].filter(Boolean).join(' ')}>
-    <div className={'markedpad '+(editable? 'editable': '')}>
+  return <div className={['__view_scope', className].filter(Boolean).join(' ')}>
+    <div className={'markedpad '+(editing? 'editable': '')}>
       <&=@/components/MarkedPad
         initialValue={text}
         onChange={set_text}
-        enableInput={editable}
+        enableInput={editing}
         parser={parser}
       />
     </div>
-    {enable && <&=@/components/EditBox
+    {isEditing && <&=@/components/EditBox
       className='btnbox'
-      isEditing={editable}
+      isEditing={editing}
       onEdit={_=>{
-        set_editable(!editable)
-        if(editable) {
+        set_editing(!editing)
+        if(editing) {
           _fetchWithToast()
         }
       }} />

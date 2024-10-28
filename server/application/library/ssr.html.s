@@ -2,36 +2,47 @@
 <!doctype html>
 <html>
 <head>
-  <?js echo(extHeaderStr) ?>
   <link rel="icon" href="data:,">
   <base target='_blank' />
-  <?js if(USE_EDURA) { ?>
+  <?js if(USE_ERUDA) { ?>
     <script src='/assets/externals/js/eruda.min.js'></script>
     <script>eruda.init();</script>
   <?js } ?>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,maximum-scale=1.0,viewport-fit=cover" />
   <meta charset=utf8 />
-  <?js for(const x of css) { ?>
-  <link href='<?js echo(x) ?>' rel='stylesheet' type='text/css' />
+  <?js for(let css_link of css) { ?>
+    <link href='<?js echo(css_link) ?>' rel='stylesheet' type='text/css' />
   <?js } ?>
-  <script type="module">window.__SUPPORT_ESMODULE__=typeof import('#')==='object'</script>
+  <script>
+  for(const css of document.querySelectorAll('link[rel=stylesheet]')) {
+    if(css.sheet.cssRules.length>0) continue;
+    document.write(`<style type='text/css'>*{display: none!important;}</style>`);
+    setTimeout(_=>location.reload(), 1e3);
+    break
+  }
+  </script>
+  <script type="module">
+  import('#').catch(_=>{
+    window.__SUPPORT_ESMODULE__=true
+  })
+  </script>
 </head>
 <body>
+  <?js echo(extraDevHTMLCss) ?>
   <div class='app'>$${{ssrHTML}}</div>
-  <?js for(const x of venderJs) { ?>
-    <script type='text/javascript' src='<?js echo(x) ?>'></script>
-  <?js } ?>
   <script type='text/javascript'>
-    <?js for(let key in props) {
-      echo(`window.${key}=${props[key]};`)
-    } ?>
+    window.__ssr_payload__=<?js echo(JSON.stringify(payload)) ?>;
   </script>
-  <?js for(const {src, isAsync} of assetJs) { ?>
-    <script type='text/javascript' <?js echo(isAsync? 'defer async': '') ?> src='<?js echo(src) ?>'></script>
+  <?js for(let js_link of js) { ?>
+    <script type='text/javascript' src='<?js echo(js_link) ?>'></script>
   <?js } ?>
+  <?js echo(extraDevHTMLJs) ?>
+  <script>
+  window.KAZE2024_JS_READY || setTimeout(_=>location.reload(), 1e3)
+  </script>
 </body>
 </html>
 
 <?js
-echo(readEchoed().replace(/\s*\n\s+|^\s*/g, '').replace('$${{ssrHTML}}', ssrHTML))
+echo(readEchoed().replace(/\s*[\n\r]+\s*|^\s*/g, '').replace('$${{ssrHTML}}', ssrHTML))
