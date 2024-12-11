@@ -5,6 +5,8 @@ import * as appInfo from '@/hooks/useAppInfo'
 import * as search from '@/hooks/useSearchText'
 import * as historyAction from '@/hooks/useHistoryAction'
 import {CustomRouter, isCurrent} from '@/AppRouter'
+import Link from '@/components/Link'
+import AutoFixed from '@/components/AutoFixed'
 
 export async function init(payload) {
   if(!payload) {
@@ -32,32 +34,28 @@ export default function() {
 
 function AppHeader(props) {
   const [headerText, set_headerText]=appInfo.HeaderText.use()
-  const [height, set_height]=React.useState(0)
-  const headerRef=React.useRef(null)
-  React.useEffect(_=>{
-    set_height(headerRef.current.offsetHeight)
-  }, [headerText])
-
-  return <div className='header' style={height? {height}: {}}>
-    <div className={(height? 'fixed': 'normal')} ref={headerRef}>
-      <&=@/services/Container
-        children={<>
-          <&=@/services/AppInfo
-            textStore={appInfo.HeaderText}
-            action='/app/saveHeader'
-          />
-          <div className='tabs'>
-            <div className='left'>
-              <LeftMenu />
-            </div>
-            <div className='right'>
-              <SearchBtn />
-            </div>
-          </div>
-        </>}
+  const editChange=appInfo.Editing.useVal()
+  return <AutoFixed
+    className='header'
+    scroller={window.APP_ROOT}
+    watchChildrenChange={[editChange]}
+  >
+    <div className='app-container'>
+      <&=@/services/AppInfo
+        textStore={appInfo.HeaderText}
+        action='/app/saveHeader'
       />
+      <div className='tabs'>
+        <div className='left'>
+          <LeftMenu />
+        </div>
+        <div className='right'>
+          <SearchBtn />
+        </div>
+      </div>
     </div>
-  </div>
+  </AutoFixed>
+
 }
 
 function LeftMenu(props) {
@@ -82,7 +80,11 @@ function LeftMenu(props) {
       parser={x=>{
         const e=[]
         x.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, (_, text, link)=>{
-          e.push(<a key={text} href={link} className={isCurrent(link)? 'active': ''}>{text}</a>)
+          e.push(<Link
+            key={text}
+            href={link}
+            className={isCurrent(link)? 'active': ''}
+          >{text}</Link>)
         })
         return e
       }}

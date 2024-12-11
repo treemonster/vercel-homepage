@@ -14,6 +14,7 @@ const appRoot=document.querySelector('.app')
 const payload=window.__ssr_payload__
 
 window.KAZE2024_JS_READY=true
+window.APP_ROOT=appRoot
 
 ;(async _=>{
   if(payload) await init(payload)

@@ -7,6 +7,7 @@ export const HeaderLeftText=createStoreValue(null)
 export const FooterText=createStoreValue(null)
 export const Editing=createStoreValue(false)
 export const JavascriptReady=createStoreValue(false)
+export const IsChangingPage=createStoreValue(false)
 
 const funcs=new Map
 export function useUniqueLoading(key, isDone, callback) {

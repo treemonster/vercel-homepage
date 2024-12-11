@@ -7,7 +7,7 @@ html, body, .app{
   overflow-x: hidden;
   overflow-y: auto;
   *{
-    font-family: 'PingFang Regular';
+    font-family: "SF Pro SC","HanHei SC","SF Pro Text","Myriad Set Pro","SF Pro Icons","Apple Legacy Chevron","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif!important;
   }
 }
 body, p{
@@ -29,6 +29,13 @@ body, p{
       }
     }
   }
+}
+
+.app-container{
+	position: relative;
+	margin: 0 auto;
+  width: 800Px;
+	max-width: 100%;
 }
 
 @media (max-width:750px){

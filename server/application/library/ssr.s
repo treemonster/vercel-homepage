@@ -104,7 +104,7 @@ class Lib_ssr{
     const assets=this.getAssets()
 
 		const arg={
-			USE_EDURA,
+			USE_ERUDA,
 			ssrHTML,
 			payload,
 			extraDevHTMLCss: '',

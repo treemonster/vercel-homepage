@@ -1,11 +1,13 @@
 import React from 'react'
 import * as historyAction from '@/hooks/useHistoryAction'
-import {buildUrl} from '@/utils/url'
+import {buildUrl, parseUrl} from '@/utils/url'
 import './index.scss'
 
 export default function(props) {
   const {
-    url, params,
+    url: _url,
+    params: _params,
+    href: _href,
     target='_self',
     children,
     className,
@@ -13,8 +15,21 @@ export default function(props) {
     ..._props
   }=props
 
+  let url, params, href
+
+  if(_href) {
+    const {pathname, query}=parseUrl(_href)
+    href=_href
+    url=pathname
+    params=query
+  }else{
+    params=typeof _params==='function'? _params(): _params
+    url=_url
+    href=buildUrl(url, params)
+  }
+
   return <a
-    href={buildUrl(url, params)}
+    href={href}
     target={target}
     className={[className, '__view_scope'].filter(Boolean).join(' ')}
     {..._props}

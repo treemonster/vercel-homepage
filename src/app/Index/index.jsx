@@ -1,7 +1,7 @@
 import React from 'react'
 import './index.scss'
 import * as content from '@/hooks/useContent'
-import {Editing, JavascriptReady} from '@/hooks/useAppInfo'
+import * as appInfo from '@/hooks/useAppInfo'
 import {text as searchText} from '@/hooks/useSearchText'
 import * as historyAction from '@/hooks/useHistoryAction'
 import Memo from '@/components/Memo'
@@ -17,7 +17,7 @@ export async function init(payload) {
 
 export default function() {
   const kw=searchText.useVal()
-  const isEditing=Editing.useVal()
+  const isEditing=appInfo.Editing.useVal()
   return <div className='__view_scope'>
     {
       isEditing && <div className='create-btn'>
@@ -37,7 +37,9 @@ export default function() {
 
 function ContentList({kw}) {
   const {ids, isEnd, isError, isFetching}=content.useKwList(kw)
-  const jsReady=JavascriptReady.useVal()
+  const jsReady=appInfo.JavascriptReady.useVal()
+  const isAnimating=appInfo.IsChangingPage.useVal()
+
   return <div className='content-list'>
     {ids.map(({id, isFromSsr})=><Memo key={id} watches={[id]}>
       <FadeIn showImmediate={isFromSsr}>
@@ -66,7 +68,7 @@ function ContentList({kw}) {
               onClick={_=>content.loadNextPage(kw)}
             />
           }
-          return <&=@/components/Expose
+          return isAnimating? null: <&=@/components/Expose
             option={{rootMargin: '1px'}}
             exposeOnce={false}
             onVisible={_=>content.loadNextPage(kw)}

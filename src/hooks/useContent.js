@@ -126,7 +126,7 @@ export async function doDeleteId(id) {
   await fetch('/content/delete', {id})
   delete Contents[id]
   delete Edits[id]
-  DeleteList.set([...store.DeleteList, id])
+  DeleteList.set([...DeleteList.val(), id])
   bak.remove(id)
 }
 export async function doSaveById(id) {

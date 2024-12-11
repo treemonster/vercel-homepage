@@ -1,3 +1,5 @@
+import 'scrollingelement'
+
 import React from 'react'
 
 import {Router, CustomRouter, getPageRef, getZIndex, getIsUnique} from '@/AppRouter'
@@ -32,8 +34,8 @@ export default function() {
   }, [])
 	return <>
     <AutoInit pageRef={Router.module.header} />
-    <&=@/services/Container children={
-      <&=@/components/FadeView render={_=>{
+    <div className='app-container'>
+      <&=@/services/FadeView render={_=>{
         const e=getPageRef()
         const pageKey=pageRef2pageKey(e)
         return autoCleanList(
@@ -45,7 +47,7 @@ export default function() {
           ]}),
         ).page
       }} />
-    } />
+    </div>
     <AutoInit pageRef={Router.module.footer} />
   </>
 }
@@ -78,7 +80,9 @@ function AutoInit({pageRef}) {
 
   const [isFirst, emitAll]=useUniqueLoading(pageKey, isDone, _=>set_status(S_FETCHING))
   const Page=pageRef.default
+  const Loading=pageRef.Loading
   if(isDone) return <Page />
+  if(isFirst && Loading) return <Loading />
   if(isFirst) return <div className='payload-pending' style={{height: 200}}>
     {isFetching && <&=@/components/Loading />}
     {isError && <div className='error'>

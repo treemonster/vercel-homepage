@@ -5,44 +5,42 @@
   margin: 20px;
   position: relative;
   .title-line{
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 10px;
-    height: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex-wrap: wrap;
+    min-height: 80px;
 
     .btns{
-      position: relative;
+      position: absolute;
       min-width: 150px;
-      margin-left: 20px;
+      right: 15px;
+      top: 15px;
     }
 
     .left{
-      display: flex;
-      justify-content: space-between;
-      overflow: hidden;
+
       width: 100%;
-      .item{
-        display: flex;
-        align-items: flex-start;
-        flex-direction: column;
-        justify-content: center;
-        overflow: hidden;
-        &.right{
-          float: none;
-          overflow: visible;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      .meta{
+        .title{
+          font-size: 40px;
+          white-space: break-spaces;
+          word-break: break-all;
         }
-      }
-      .title{
-        font-size: 40px;
-      }
-      .date{
-        margin: 8px 0;
-        font-size: 18px;
-        opacity: .7;
-        font-weight: normal;
+        .date{
+          margin: 8px 0;
+          font-size: 18px;
+          opacity: .7;
+          font-weight: normal;
+        }
       }
       .tags{
         font-size: 24px;
@@ -61,9 +59,18 @@
     }
 
     &.editing{
-       height: 130px;
+       height: 200px;
       .left{
         flex-direction: column;
+        margin-bottom: -40px;
+        .meta{
+          margin-top: 40px;
+          margin-bottom: 10px;
+          width: 100%;
+          .title{
+            font-size: 32px;
+          }
+        }
         .item{
           margin-bottom: 10px;
         }
@@ -88,34 +95,6 @@
         height: 100%;
         overflow: hidden;
       }
-      .detail{
-        position: absolute;
-        display: flex;
-        justify-content: center;
-        height: 80px;
-        align-items: center;
-        bottom: 0;
-        width: 100%;
-        font-size: 32px;
-        background: linear-gradient(180deg, transparent, #ccc);
-        backdrop-filter: blur(2Px);
-        cursor: pointer;
-        opacity: .8;
-        transition: .3s;
-        &:hover{
-          backdrop-filter: blur(5Px);
-          opacity: 1;
-        }
-        .tip{
-          display: flex;
-          align-items: flex-end;
-          justify-content: center;
-        }
-        .bi{
-          font-size: 24px;
-          margin-left: 10px;
-        }
-      }
     }
   }
   &.small{
@@ -123,6 +102,17 @@
       height: auto;
       max-height: 250px;
       min-height: 150px;
+      .mask{
+        position: absolute;
+        height: 80px;
+        align-items: center;
+        bottom: 0;
+        width: 100%;
+        background: linear-gradient(180deg, rgba(255,255,255,.3), #ccc);
+        cursor: pointer;
+        opacity: .6;
+        transition: .3s;
+      }
     }
   }
   &.large, &.new{

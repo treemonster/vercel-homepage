@@ -1,6 +1,7 @@
 import React from 'react'
 import './index.scss'
 import * as historyAction from '@/hooks/useHistoryAction'
+import * as appInfo from '@/hooks/useAppInfo'
 import {sleep} from '@/utils/base'
 import {autoCleanList} from '@/utils/cache'
 
@@ -86,6 +87,7 @@ function FadeView(props) {
       return
     }
     const play=async page=>{
+      appInfo.IsChangingPage.set(true)
       lock.locked=true
       const _curr=pages.find(x=>x.className===classNames.finish)
       const _next=autoCleanList(
@@ -109,6 +111,7 @@ function FadeView(props) {
       }else{
         setAppScrollTop(_next.scrollTop)
       }
+      appInfo.IsChangingPage.set(false)
     }
     play(page)
   }, [page])

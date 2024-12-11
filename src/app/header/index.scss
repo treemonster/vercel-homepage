@@ -1,22 +1,14 @@
 .__view_scope{
+  z-index: 100;
+  position: relative;
   .header{
     position: relative;
-    width: 100%;
-  }
-  .fixed, .normal{
     width: 100%;
     min-height: 180px;
     z-index: 10;
     padding-bottom: 20px;
     background: #fff;
     box-shadow: 0 0 50px #333;
-  }
-  .fixed{
-    position: fixed;
-    top: 0;
-  }
-  .placeholder{
-    position: relative;
   }
   .tabs{
     display: flex;

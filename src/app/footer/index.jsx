@@ -11,11 +11,11 @@ export async function init(payload) {
 
 export default function() {
   return <div className='__view_scope'>
-    <&=@/services/Container children={
+    <div className='app-container'>
       <&=@/services/AppInfo
         textStore={appInfo.FooterText}
         action='/app/saveFooter'
-      />}
-    />
+      />
+    </div>
   </div>
 }

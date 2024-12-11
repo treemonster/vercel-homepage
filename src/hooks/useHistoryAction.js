@@ -10,6 +10,7 @@ const initActionType={
   isOut: false,
   isInReplace: false,
   version: HISTORY_VERSION,
+  nextUrl: location.pathname+location.search,
 }
 const actionType=createStoreValue(_=>{
   if(!isNodeSide()) {
@@ -31,26 +32,26 @@ function updateActionType(e, isNew) {
     isIn,
     isOut: !isIn,
     isInReplace: e.action==='replace',
+    nextUrl: e.nextUrl,
   })
 }
 
-export function pushUrl(x, params) {
+function changeUrl(x, params, isReplace) {
   const e={
     t: Date.now(),
-    action: 'push',
+    action: isReplace? 'replace': 'push',
     version: HISTORY_VERSION,
+    nextUrl: buildUrl(x, params),
   }
-  history.pushState(e, null, buildUrl(x, params))
+  if(e.nextUrl===actionType.val().nextUrl) return;
+  history[isReplace? 'replaceState': 'pushState'](e, null, e.nextUrl)
   updateActionType(e, true)
 }
+export function pushUrl(x, params) {
+  changeUrl(x, params, false)
+}
 export function replaceUrl(x, params) {
-  const e={
-    t: Date.now(),
-    action: 'replace',
-    version: HISTORY_VERSION,
-  }
-  history.replaceState(e, null, buildUrl(x, params))
-  updateActionType(e, true)
+  changeUrl(x, params, true)
 }
 export function goBack() {
   history.back()

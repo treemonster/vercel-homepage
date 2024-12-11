@@ -6,10 +6,11 @@
     "v-prod": "sptcd -rindex.s -wserver -n3"
   },
   "dependencies": {
-    "multiparty": "^4.2.3",
-    "pg": "^8.13.0",
+    "multiparty": "4.2.3",
+    "pg": "8.13.0",
     "react": "16.10.1",
     "react-dom": "16.10.1",
+    "scrollingelement": "^1.5.2",
     "sptc": "0.0.23"
   },
   "devDependencies": {
