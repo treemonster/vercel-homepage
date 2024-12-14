@@ -58,7 +58,7 @@ function ContentList({kw}) {
               </div>
           }
           if(isFetching) {
-            return <&=@/components/Loading />
+            return <&=@/components/Loading isLoading />
           }
           if(isError) {
             return <&=@/components/Icon
@@ -72,7 +72,7 @@ function ContentList({kw}) {
             option={{rootMargin: '1px'}}
             exposeOnce={false}
             onVisible={_=>content.loadNextPage(kw)}
-            children={<&=@/components/Loading />}
+            children={<&=@/components/Loading isLoading />}
           />
         })()}
       </div>

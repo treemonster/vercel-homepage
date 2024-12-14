@@ -2,7 +2,6 @@ import React from 'react'
 import './index.scss'
 import {assert} from '@/utils/base'
 
-import Toast from '@/components/Toast'
 import {time2str} from '@/utils/format'
 import {str2color} from '@/utils/color'
 
@@ -12,20 +11,11 @@ import * as appInfo from '@/hooks/useAppInfo'
 import {text as searchText} from '@/hooks/useSearchText'
 import {CustomRouter} from '@/AppRouter'
 import Link from '@/components/Link'
-
-async function fetchWithToast([begin, done], task, cb) {
-  Toast.show(begin)
-  try{
-    await task
-    Toast.show(done)
-    cb?.()
-  }catch(e) {
-    Toast.show(e.message)
-  }
-}
+import {asyncTaskWithToast} from '@/utils/ui'
 
 export default function(props) {
-  const {isSmallView, isDetailView, isCreateView, displayLoading}=props
+  const {isSmallView, isDetailView, isCreateView}=props
+  const {displayLoading, displayRetry, retryFunc}=props
   const id=isCreateView? content.CREATE_ID: props.id
   assert(typeof id==='number')
   const isEditing=appInfo.Editing.useVal()
@@ -93,14 +83,18 @@ export default function(props) {
         className='btns'
         isEditing={editing}
         onEdit={isSmallView? null: _=>{
+          const texts={
+            beginText: 'saving..',
+            doneText: 'saved',
+          }
           if(isCreateView) {
-            fetchWithToast(['saving..', 'saved'], content.doCreate(), _=>{
+            asyncTaskWithToast(texts, content.doCreate(), _=>{
               historyAction.replaceUrl(CustomRouter.Index.href)
             })
           }else{
             set_editing(!editing)
             if(editing) {
-              fetchWithToast(['saving..', 'saved'], content.doSaveById(id))
+              asyncTaskWithToast(texts, content.doSaveById(id))
             }
           }
         }}
@@ -113,7 +107,7 @@ export default function(props) {
             set_editing(false)
           }else{
             if(!confirm('delete it?')) return;
-            fetchWithToast(['deleting..', 'deleted'], content.doDeleteId(id), _=>{
+            asyncTaskWithToast(['deleting..', 'deleted'], content.doDeleteId(id), _=>{
               if(isDetailView) {
                 historyAction.pushUrl('/')
               }
@@ -124,15 +118,14 @@ export default function(props) {
 
     </div>
     <div className={'markedpad '+(editing? '': 'readmode')}>
-      {
-        displayLoading?
-          <&=@/components/Loading />:
-          <&=@/components/MarkedPad
-            initialValue={isSmallView? detail.summary: detail.content}
-            onChange={nextContent=>edit({content: nextContent})}
-            enableInput={editing}
-          />
-      }
+      {(_=>{
+        if(displayLoading) return <&=@/components/Loading isLoading />
+        if(displayRetry) return <&=@/components/Loading isBlock isRetry retryFunc={retryFunc} />
+      })() || <&=@/components/MarkedPad
+        initialValue={isSmallView? detail.summary: detail.content}
+        onChange={nextContent=>edit({content: nextContent})}
+        enableInput={editing}
+      />}
       {isSmallView && <div className='mask' />}
     </div>
 

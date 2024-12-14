@@ -52,7 +52,9 @@ const sources=[
 <?js } ?>
 
 sources.map(s=>{
-  if(['scss', 'css'].includes(s.type)) {
+  if(['html'].includes(s.type)) {
+    s.value=`document.body.innerHTML=${JSON.stringify(s.value)}`
+  } else if(['scss', 'css'].includes(s.type)) {
     s.value=`
     const css=document.createElement('style')
     css.innerHTML=\`${Sass.compileString(s.value).css.replace(/\`/g, '\\\`')}\`

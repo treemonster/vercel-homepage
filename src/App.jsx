@@ -4,7 +4,7 @@ import React from 'react'
 
 import {Router, CustomRouter, getPageRef, getZIndex, getIsUnique} from '@/AppRouter'
 import {autoCleanList} from '@/utils/cache'
-import {useUniqueLoading, usePayload, JavascriptReady} from '@/hooks/useAppInfo'
+import {useMergeLoading, usePayload, JavascriptReady} from '@/hooks/useAppInfo'
 
 function pageRef2pageKey(e) {
   if(e===Router.module.header) return '_Header'
@@ -78,27 +78,26 @@ function AutoInit({pageRef}) {
     })()
   }, [status])
 
-  const [isFirst, emitAll]=useUniqueLoading(pageKey, isDone, _=>set_status(S_FETCHING))
-  const Page=pageRef.default
-  const Loading=pageRef.Loading
-  if(isDone) return <Page />
-  if(isFirst && Loading) return <Loading />
-  if(isFirst) return <div className='payload-pending' style={{height: 200}}>
-    {isFetching && <&=@/components/Loading />}
-    {isError && <div className='error'>
-      <h3 className='title'>
-        <&=@/components/Icon
-          className='bi-emoji-surprise'
-        /> Network error.
-      </h3>
-      <&=@/components/Icon
-        className='bi-arrow-counterclockwise'
-        onClick={emitAll}
-        isBtn
-        text={'reload'}
-        size='normal'
+  const retryFunc=useMergeLoading(pageKey, isDone, _=>set_status(S_FETCHING))
+  const Page=pageRef.Page || pageRef.default
+  const isCustomCatchError=Page===pageRef.Page
+
+  const e={
+    isDone,
+    isError,
+    isFetching,
+    retryFunc,
+  }
+  if(isDone) return <Page {...e} />
+  if(isError || isFetching) {
+    return isCustomCatchError?
+      <Page {...e} />:
+      <&=@/components/Loading
+        retryFunc={retryFunc}
+        isRetry={isError}
+        isLoading={isFetching}
+        isBlock
       />
-    </div>}
-  </div>
-  return null
+  }
+
 }

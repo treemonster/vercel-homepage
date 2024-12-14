@@ -35,6 +35,7 @@ export default function(props) {
     {..._props}
     onClick={e=>{
       e.preventDefault()
+      e.stopPropagation()
       onClick?.(e)
       historyAction.pushUrl(url, params)
     }}

@@ -11,15 +11,17 @@ class apiController{
   }
   finish(err, ret) {
     if(Lib_ssr.__IS_SSR_PAYLOAD_TIMEOUT__) return;
-    if(!Lib_ssr.__IS_SSR__) {
-      setResponseHeaders({
-        'x-response-api-cost': Date.now()-this._start,
-      })
+    const isServerFetch=Lib_ssr.__IS_SSR__
+    const res={
+      data: ret || null,
+      error: err? err.message || 'unknown error': null,
     }
-    if(err) {
-      Lib_response.json({error: err})
-    }else{
-      Lib_response.json({data: ret, error: null})
-    }
+    if(isServerFetch) return res
+    setResponseHeaders({
+      'content-type': 'application/json; charset=utf8',
+      'x-response-api-cost': Date.now()-this._start,
+    })
+    echo(JSON.stringify(res))
   }
+
 }

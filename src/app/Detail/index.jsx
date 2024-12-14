@@ -12,15 +12,13 @@ export async function init(payload) {
   content.updateContent(payload)
 }
 
-export function Loading() {
-  return <Detail displayLoading={true} />
-}
-
-export default function Detail(props) {
+export function Page({isFetching, isError, isDone, retryFunc}) {
   return <div className='__view_scope'>
     <&=@/services/Content
       isDetailView
-      displayLoading={props.displayLoading}
+      displayLoading={isFetching}
+      displayRetry={isError}
+      retryFunc={retryFunc}
       id={getIdFromUrl()}
     />
   </div>

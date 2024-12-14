@@ -14,23 +14,6 @@ body, p{
   margin: 0;
 }
 
-.payload-pending{
-	width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  .error{
-    font-size: 56px;
-    .title{
-      display: flex;
-      align-items: center;
-      .bi{
-        font-size: 64px;
-      }
-    }
-  }
-}
-
 .app-container{
 	position: relative;
 	margin: 0 auto;

@@ -10,7 +10,7 @@ export const JavascriptReady=createStoreValue(false)
 export const IsChangingPage=createStoreValue(false)
 
 const funcs=new Map
-export function useUniqueLoading(key, isDone, callback) {
+export function useMergeLoading(key, isDone, callback) {
   if(!isDone) funcs.set(key, callback)
   const clear=_=>funcs.delete(key)
   React.useEffect(_=>clear, [])
@@ -18,13 +18,12 @@ export function useUniqueLoading(key, isDone, callback) {
     if(isDone) clear()
   }, [isDone])
 
-  const isFirst=[...funcs.values()][0]===callback
   const emitAll=_=>{
     for(const fn of [...funcs.values()]) fn()
     funcs.clear()
   }
 
-  return [isFirst, emitAll]
+  return emitAll
 }
 
 const payloads={}

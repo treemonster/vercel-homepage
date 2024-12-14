@@ -74,10 +74,12 @@ async function _call(x, ...e) {
 
 async function execute(pathname, ...argv) {
   const unlock=Sync.Lock()
+  let ret={data: null, error: null}
   try{
-    await _call(pathname, ...argv)
+    ret.data=await _call(pathname, ...argv)
   }catch(e) {
-    await _call($error, e)
+    ret.error=await _call($error, e)
   }
   unlock()
+  return ret
 }

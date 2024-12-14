@@ -41,12 +41,12 @@ class Lib_ssr{
     self.ServerFetch=async (url, option={})=>{
       const {resolve, execute}=include(__ROUTER__)
       try{
-        await this.timelimitQuery(execute(resolve(url), {ssrData: option.body || {}}))
-        const [code]=getResponseStatus()
+				const {data, error}=await this.timelimitQuery(execute(resolve(url), {ssrData: option.body || {}}))
+				if(error) throw error
         return {
-          statusCode: code,
-          responseHeaders: getResponseHeaders(),
-          responseJSON: JSON.parse(readEchoed()),
+          statusCode: 200,
+          responseHeaders: {},
+          responseJSON: {data},
         }
       }catch(e) {}
     }
