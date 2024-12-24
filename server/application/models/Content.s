@@ -87,12 +87,16 @@ class ContentModel extends Lib_psql{
   }
 
   content2summary(content) {
-    let c=(content || '').replace(/\n[^\n]+$/, '')
-    const r=c.match(/```/g)
-    if(r && r.length%2) {
-      c=c.substr(0, c.lastIndexOf('```'))
+    let c=(content || '').trim()
+    const n0=c.indexOf('```\n\n')
+    if(n0>0) return c.substr(0, n0+5)
+    let n=-1, s=c
+    for(let i=0; i<2; i++) {
+      n=c.indexOf('\n', n+1)
+      if(n<0) return s
+      s=c.substr(0, n)
     }
-    return c
+    return s
   }
 
   async list({
@@ -107,7 +111,7 @@ class ContentModel extends Lib_psql{
     const sql=sqlHelper({log: true})
     let _sql=`select id, title, tags, `
     if(summary) {
-      _sql+=`LEFT(content, 100) as content`
+      _sql+=`LEFT(content, 300) as content`
     }else{
       _sql+=`content`
     }
