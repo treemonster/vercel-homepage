@@ -114,9 +114,6 @@ class Lib_ssr{
 		}
 		const {css, js}=arg
 
-    js.push('/assets/externals/js/highlight.min.js')
-    css.push('/assets/externals/css/github-dark.min.css')
-
 		if(__IS_DEV__) {
 			arg.extraDevHTMLCss=`
 			  <style type=text/css>iframe{display:none!important;}</style>

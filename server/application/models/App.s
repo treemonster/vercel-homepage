@@ -18,6 +18,8 @@ class AppModel extends Lib_psql{
     (${ID_FOOTER}, '# Footer');
   `
 
+  static tables=['app']
+
   async _update(id, value) {
     const {sqlHelper}=await this.opening
     const sql=sqlHelper({log: true})

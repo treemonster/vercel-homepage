@@ -80,54 +80,10 @@
     .toolbar{
       display: flex;
       background: #eee;
-      .playbtn{
-        margin: 5px;
-        border-radius: 15px;
-        background: #aaf;
-        color: #fff;
-        padding: 2px 5px;
-        animation: pulse-btn 2s infinite linear;
-        @keyframes pulse-btn{
-          0%{
-            transform: scale(1);
-            transform-origin: center;
-            background: #aaf;
-          }
-          10%{
-            transform: scale(.8);
-            transform-origin: center;
-            background: #afa;
-          }
-          20%{
-            transform: scale(1);
-            transform-origin: center;
-            background: #aaf;
-          }
-          30%{
-            transform: scale(.8);
-            transform-origin: center;
-            background: #afa;
-          }
-          40%{
-            transform: scale(1);
-            transform-origin: center;
-            background: #aaf;
-          }
-          100%{
-            transform: scale(1);
-            transform-origin: center;
-            background: #aaf;
-          }
-        }
-        &:hover{
-          *{
-            color: #fff!important;
-          }
-        }
-      }
       .filename-tabs{
         width: 100%;
         display: flex;
+        height: 55px;
         .tab{
           display: flex;
           align-items: center;
@@ -150,7 +106,8 @@
       pre{
         margin: 0;
         code{
-           background: #0d1117;
+          background: #0d1117;
+          color: #fff;
         }
       }
     }

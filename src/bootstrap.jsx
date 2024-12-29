@@ -13,6 +13,10 @@ import './scss/app.scss'
 const appRoot=document.querySelector('.app')
 const payload=window.__ssr_payload__
 
+if(!window.React) {
+  window.ReactDOM=ReactDOM
+  window.React=React
+}
 window.KAZE2024_JS_READY=true
 window.APP_ROOT=appRoot
 

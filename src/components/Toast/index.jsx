@@ -11,20 +11,24 @@ export default mount((props)=>{
   const {handler}=props
   handler.show=(x, duration=2e3)=>{
     set_toast(null)
-    setTimeout(_=>{
+    const t=setTimeout(_=>{
       set_toastContent(x)
-      set_toast(duration)
+      set_toast({duration})
       set_newone(Math.random())
     }, 80)
+    return _=>clearTimeout(t)
+  }
+  handler.hide=_=>{
+    set_toast(null)
   }
 
   React.useEffect(_=>{
-    if(!toast) return;
+    if(!toast || toast?.duration<0) return;
     let valid=true
     setTimeout(_=>{
       if(!valid) return;
       set_toast(null)
-    }, toast)
+    }, toast.duration)
     return _=>valid=false
   }, [newone])
 

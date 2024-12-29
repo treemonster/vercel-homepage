@@ -17,8 +17,11 @@ class appController extends apiController{
     ].includes(action)
   }
 
+  getModels() {
+    return [AppModel, ContentModel]
+  }
   async setupAction() {
-    const models=[AppModel, ContentModel]
+    const models=this.getModels()
     const $db=new Lib_psql
     const {sqlHelper}=await $db.opening
     const sql=sqlHelper({log: true})
@@ -26,6 +29,24 @@ class appController extends apiController{
     return {
       success: true
     }
+  }
+  async backupAction() {
+    const models=this.getModels()
+    const tables=models.reduce((a, b)=>a.concat(b.tables), [])
+    const $db=new Lib_psql
+    const {sqlHelper}=await $db.opening
+    const sql=sqlHelper({log: true})
+    const ret={}
+    for(const table of tables) {
+      const {rows}=await sql.query(`select * from ${table}`)
+      ret[table]=rows
+    }
+    this.disableAutoJSONHeader()
+    setResponseHeaders({
+      'content-type': 'application/octet-stream',
+      'content-disposition': 'attachment; filename="backup-'+Date.now()+'.json"',
+    })
+    return ret
   }
 
   async isReadOnlyAction() {

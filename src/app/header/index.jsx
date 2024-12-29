@@ -102,7 +102,7 @@ function SearchBtn(props) {
     'searchbox',
     !jsReady && 'disable-search',
   ].filter(Boolean).join(' ')} onClick={_=>{
-    historyAction.pushUrl(CustomRouter.Index.href)
+    historyAction.pushUrl(CustomRouter.Index.href, {s: search.text.val()})
   }}>
     <&=@/components/Text
       className='search'

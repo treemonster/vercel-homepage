@@ -9,6 +9,9 @@ class apiController{
     }
     this._start=Date.now()
   }
+  disableAutoJSONHeader() {
+    this._autoAddHeader=false
+  }
   finish(err, ret) {
     if(Lib_ssr.__IS_SSR_PAYLOAD_TIMEOUT__) return;
     const isServerFetch=Lib_ssr.__IS_SSR__
@@ -17,10 +20,12 @@ class apiController{
       error: err? err.message || 'unknown error': null,
     }
     if(isServerFetch) return res
-    setResponseHeaders({
-      'content-type': 'application/json; charset=utf8',
-      'x-response-api-cost': Date.now()-this._start,
-    })
+    if(this._autoAddHeader) {
+      setResponseHeaders({
+        'content-type': 'application/json; charset=utf8',
+        'x-response-api-cost': Date.now()-this._start,
+      })
+    }
     echo(JSON.stringify(res))
   }
 

@@ -2,4 +2,62 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  margin: 5px;
+  border-radius: 15px;
+  background: #aaf;
+  color: #fff;
+  padding: 2px 5px;
+  transition: .8s;
+  transform: scale(1);
+  &:hover{
+    *{
+      color: #fff!important;
+    }
+  }
+
+  &.normal{
+    animation: pulse-btn 2s infinite linear;
+    @keyframes pulse-btn{
+      0%{
+        transform: scale(1);
+        transform-origin: center;
+        background: #aaf;
+      }
+      10%{
+        transform: scale(.8);
+        transform-origin: center;
+        background: #afa;
+      }
+      20%{
+        transform: scale(1);
+        transform-origin: center;
+        background: #aaf;
+      }
+      30%{
+        transform: scale(.8);
+        transform-origin: center;
+        background: #afa;
+      }
+      40%{
+        transform: scale(1);
+        transform-origin: center;
+        background: #aaf;
+      }
+      100%{
+        transform: scale(1);
+        transform-origin: center;
+        background: #aaf;
+      }
+    }
+  }
+  &.hide{
+    transform: scale(0);
+  }
+
+  &-toast{
+    display: flex;
+    align-items: center;
+  }
+
 }

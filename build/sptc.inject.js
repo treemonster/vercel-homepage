@@ -32,6 +32,14 @@ const A={
   }),
   TPLS: [
     /\.jsx?$/, ctx=>{
+      let {str}=ctx
+      if(str.match(/^\/\/\s+@csrWidget\b/) && is_server(ctx)) {
+        return `export default {}`
+      }
+      return str
+    },
+
+    /\.jsx?$/, ctx=>{
       let {str, fn}=ctx
       let appends={}
       if (str.match(/<&[*=]/)) {
@@ -54,14 +62,6 @@ const A={
         str=Object.keys(appends).join('\n')+'\n'+str
       }
       return str;
-    },
-
-    /\.jsx?$/, ctx=>{
-      let {str}=ctx
-      if(str.match(/^\/\/\s+@csrWidget\b/) && is_server(ctx)) {
-        return `export default {}`
-      }
-      return str
     },
 
     /\.jsx?$/, ctx=>{

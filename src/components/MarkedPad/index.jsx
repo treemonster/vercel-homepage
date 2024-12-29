@@ -1,6 +1,15 @@
 import React from 'react'
 import './index.scss'
 import marked from 'marked/marked.min'
+import {loadScript, appendCssLink, isNodeSide} from '@/utils/base'
+
+if(!isNodeSide()) {
+  appendCssLink('https://unpkg.com/@highlightjs/cdn-assets@11.9.0/styles/github-dark.min.css')
+}
+
+const hljsReady=isNodeSide()?
+  new Promise(_=>{}):
+  loadScript('https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js')
 
 marked.use({
   headerIds: false,
@@ -74,7 +83,7 @@ function CodePanel(props) {
   React.useEffect(_=>{
     if(!codeRef.current) return;
     codeRef.current.removeAttribute('data-highlighted')
-    window.hljs?.highlightElement(codeRef.current)
+    hljsReady.then(_=>window.hljs.highlightElement(codeRef.current))
   }, [index, codes])
   if(!code) return null
   return <div className='code-panel hljs'>
@@ -86,7 +95,7 @@ function CodePanel(props) {
           className={'tab'+(i===index? ' active': '')}
         >{filename}</div>)}
       </div>
-      {play && <&=./components/PlayBtn className='playbtn' sources={codes.map(x=>({
+      {play && <&=./components/PlayBtn sources={codes.map(x=>({
         type: x.type,
         value: x.code,
         filename: x.filename,

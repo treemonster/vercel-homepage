@@ -1,5 +1,6 @@
 <?js
 
+const SUMMARY_MAXLEN=300
 class ContentModel extends Lib_psql{
 
   static sql=`
@@ -12,6 +13,8 @@ class ContentModel extends Lib_psql{
     create_at BIGINT
   );
   `
+
+  static tables=['content']
 
   async create(title, tags, content, create_at) {
     const {sqlHelper}=await this.opening
@@ -87,7 +90,7 @@ class ContentModel extends Lib_psql{
   }
 
   content2summary(content) {
-    let c=(content || '').trim()
+    let c=(content || '').trim().substr(0, SUMMARY_MAXLEN)
     const n0=c.indexOf('```\n\n')
     if(n0>0) return c.substr(0, n0+5)
     let n=-1, s=c
@@ -111,7 +114,7 @@ class ContentModel extends Lib_psql{
     const sql=sqlHelper({log: true})
     let _sql=`select id, title, tags, `
     if(summary) {
-      _sql+=`LEFT(content, 300) as content`
+      _sql+=`LEFT(content, ${SUMMARY_MAXLEN}) as content`
     }else{
       _sql+=`content`
     }
