@@ -4,90 +4,67 @@ import parseScss from '@/utils/css'
 import './index.scss'
 import Model from '@/components/Model'
 import Toast from '@/components/Toast'
-import {loadScript, createLock} from '@/utils/base'
+import {loadScript} from '@/utils/base'
 import {createStoreValue} from '@/hooks/useStore'
-import {waitGoBack} from '@/utils/ui'
 
-const T_NORMAL=0
-const T_HIDE=1
+const T_BTN_RUN=0
+const T_BTN_PLAYING=1
+const btnState=createStoreValue(T_BTN_RUN)
 
-const playModelState=createStoreValue(T_NORMAL)
+const T_SDK_SUCCESS=0
+const T_SDK_DOWNLOADING=1
+const T_SDK_SHOULD_DL=2
+const sdkState=createStoreValue(T_SDK_SHOULD_DL)
 
 export default function(props) {
-  const {sources, className=''}=props
-  const stat=playModelState.useVal()
+  const {sources}=props
+  const bs=btnState.useVal()
+  const ss=sdkState.useVal()
 
   return <div className={[
     '__view_scope',
-    className,
-    stat===T_NORMAL? 'normal': 'hide',
+    bs===T_BTN_RUN && 'btn-pulse',
+    bs===T_BTN_PLAYING && 'btn-disable',
   ].filter(Boolean).join(' ')}>
-    <&=@/components/Icon
-      isSimpleBtn
-      isDisabled={!sources}
-      className='bi-play-fill'
-      size='small'
-      onClick={_=>openPlayModel(
-        <div className='__view_scope-toast'>
-          <&=@/components/Loading isLoading />
-          Downloading babel sdk..
-        </div>,
-        sources2ModelContent(sources),
-      )}
-      text={'Run'}
-    />
+    {
+      ss===T_SDK_DOWNLOADING?
+        <&=@/components/Icon
+          isSimpleBtn
+          className='bi-sun'
+          isRotating
+          size='small'
+          text={'downloading sdk..'}
+        />:
+        <&=@/components/Icon
+          isSimpleBtn
+          isDisabled={!sources}
+          className='bi-play-fill'
+          size='small'
+          onClick={_=>openPlayModel(sources)}
+          text={'Run'}
+        />
+    }
   </div>
 }
 
-const lock=createLock('PLAYBTN')
-async function openPlayModel(dlTip, mod) {
-  if(lock.locked()) return;
-  lock.lock()
-  setTimeout(_=>{
-    lock.unlock()
-  }, 1e3)
-  playModelState.set(T_HIDE)
-  const [cancelWait, onGoBacked, hasGoBackPromise]=waitGoBack()
+async function openPlayModel(sources) {
+  btnState.set(T_BTN_PLAYING)
 
-  let cancelled=false
-  const closeToast=Toast.show(dlTip, 99999999)
-  onGoBacked(_=>{
-    cancelled=true
-  })
   try{
-    const [Comps, {onDestory, onOpen, isAlert}]=await mod
-
-    if(cancelled) {
-      throw new Error('cancelled')
-    }
-
+    const url=location.href
+    const [Comps, {onDestory, onOpen, isAlert}]=await sources2ModelContent(sources)
+    if(url!==location.href) throw new Error('cancelled')
     if(isAlert) {
-      closeToast()
-      cancelWait()
       onOpen()
       setTimeout(_=>onDestory(), 1e3)
-      throw null
+    }else{
+      Model.open(Comps, {onOpen, onDestory})
     }
-
-    Model.open(Comps, {
-      onOpen: ModelApp=>{
-        closeToast()
-        onOpen(ModelApp)
-      },
-      onDestory: _=>{
-        cancelWait()
-        onDestory()
-      },
-    })
-    onGoBacked(_=>{
-      Model.close()
-    })
-
   }catch(e) {
-    if(e!==null) Toast.show(e.message)
+    Toast.show(e.message)
   }
 
-  playModelState.set(T_NORMAL)
+  btnState.set(T_BTN_RUN)
 }
 
 async function sources2ModelContent(sources) {
@@ -95,11 +72,17 @@ async function sources2ModelContent(sources) {
     throw new Error('Emm.. your browser is too old to support this feature.. :(')
     return
   }
-  try{
-    await loadScript(window.__CDN_FILE_MAP__['babel.js'])
-  }catch(e) {
-    throw new Error('Emm.. some script files download failed.. :(')
-    return
+
+  if(sdkState.val()!==T_SDK_SUCCESS) {
+    try{
+      sdkState.set(T_SDK_DOWNLOADING)
+      await loadScript(window.__CDN_FILE_MAP__['babel.js'])
+      sdkState.set(T_SDK_SUCCESS)
+    }catch(e) {
+      sdkState.set(T_SDK_SHOULD_DL)
+      throw new Error('Emm.. some script files download failed.. :(')
+      return
+    }
   }
 
   const es_imports={

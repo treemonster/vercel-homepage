@@ -2,7 +2,11 @@ import {createStoreValue} from '@/hooks/useStore'
 import {buildUrl} from '@/utils/url'
 import {isNodeSide} from '@/utils/base'
 
-export const hookPopStateFunc={current: null}
+const goBackHook={
+  id: null,
+  func: null,
+  skip: false,
+}
 
 const HISTORY_VERSION=Date.now()
 const initActionType={
@@ -17,9 +21,13 @@ const initActionType={
 const actionType=createStoreValue(_=>{
   if(!isNodeSide()) {
     window.addEventListener('popstate', e=>{
-      if(hookPopStateFunc.current) {
-        hookPopStateFunc.current()
-        hookPopStateFunc.current=null
+      if(goBackHook.id) {
+        if(goBackHook.skip) {
+          goBackHook.skip=false
+          goBackHook.id=null
+        }else{
+          releaseGoBackHook(null, true)
+        }
       }else{
         updateActionType(e.state || initActionType, false)
       }
@@ -71,4 +79,23 @@ export function useActionTypeVal() {
 }
 export function useVal() {
   return actionType.useVal()
+}
+
+export function bindGoBackHook(id, func) {
+  if(goBackHook.id) return;
+  goBackHook.id=id
+  goBackHook.func=func
+  history.pushState(history.state, null, location.href)
+}
+export function releaseGoBackHook(id, fromCustomGoBack=false) {
+  if(!fromCustomGoBack && goBackHook.id!==id) return;
+  goBackHook.func()
+  goBackHook.func=null
+  if(!fromCustomGoBack) {
+    goBackHook.skip=true
+    goBack()
+  }else{
+    goBackHook.skip=false
+    goBackHook.id=null
+  }
 }

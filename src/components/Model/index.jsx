@@ -3,6 +3,7 @@ import React from 'react'
 import './index.scss'
 import {mount} from '@/utils/widget'
 import {createStoreValue} from '@/hooks/useStore'
+import * as historyAction from '@/hooks/useHistoryAction'
 
 const S_BEFORE_SHOW=1
 const S_BEFORE_HIDE=2
@@ -31,10 +32,14 @@ export default mount((props)=>{
     onOpenRef.current=option?.onOpen || null
     ShowState.set(S_BEFORE_SHOW)
     Content.set(content)
+    historyAction.bindGoBackHook('MODEL_CLOSE_GOBACK', _=>handler.close({closeByGoBack: true}))
   }
-  handler.close=_=>{
+  handler.close=option=>{
     if(ShowState.val()!==S_SHOWN) return;
     ShowState.set(S_BEFORE_HIDE)
+    if(!option?.closeByGoBack) {
+      historyAction.releaseGoBackHook('MODEL_CLOSE_GOBACK')
+    }
   }
   handler.MODEL_CLASSNAME=`__view_scope`
   React.useEffect(_=>{
