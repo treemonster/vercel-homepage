@@ -1,5 +1,3 @@
-import 'scrollingelement'
-
 import React from 'react'
 
 import {Router, CustomRouter, getPageRef, getZIndex, getIsUnique} from '@/AppRouter'

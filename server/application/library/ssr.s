@@ -114,6 +114,19 @@ class Lib_ssr{
 		}
 		const {css, js}=arg
 
+		css.push(
+			__CDN_FILE_MAP__['bootcss-icon.css'],
+			__CDN_FILE_MAP__['hljs-github-dark.css'],
+		)
+		js.push(
+		  __CDN_FILE_MAP__['intersection-observer.js'],
+			__CDN_FILE_MAP__['scrollingelement.js'],
+			__CDN_FILE_MAP__['marked.js'],
+		  __CDN_FILE_MAP__['hljs.js'],
+		  !__IS_DEV__ && __CDN_FILE_MAP__['react.js'],
+		  !__IS_DEV__ && __CDN_FILE_MAP__['react-dom.js'],
+		)
+
 		if(__IS_DEV__) {
 			arg.extraDevHTMLCss=`
 			  <style type=text/css>iframe{display:none!important;}</style>
@@ -124,13 +137,12 @@ class Lib_ssr{
 				<script src="${assets.hot || ''}"></script>
 			`
 		}else{
-			js.push(
-        '/assets/externals/js/react.production.min.js',
-        '/assets/externals/js/react-dom.production.min.js',
-				`/assets/app/${assets.js}`,
-      )
+			js.push(`/assets/app/${assets.js}`)
 			css.push(`/assets/app/${assets.css}`)
 		}
+
+		arg.js=arg.js.filter(Boolean)
+		arg.css=arg.css.filter(Boolean)
 
     include(__dirname+'/ssr.html.s', arg)
 

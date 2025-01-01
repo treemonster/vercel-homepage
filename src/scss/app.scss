@@ -17,7 +17,7 @@ body, p{
 .app-container{
 	position: relative;
 	margin: 0 auto;
-  width: 800Px;
+  width: 1280Px;
 	max-width: 100%;
 }
 
@@ -26,9 +26,14 @@ body, p{
     font-size: 10px;
   }
 }
-@media (min-width:750px) {
+@media (min-width:1024px) {
   html, body{
-    font-size: 12px;
+    font-size: 14px;
+  }
+}
+@media (min-width:1280px) {
+  html, body{
+    font-size: 16px;
   }
 }
 

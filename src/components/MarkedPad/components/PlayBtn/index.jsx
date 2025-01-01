@@ -4,14 +4,19 @@ import parseScss from '@/utils/css'
 import './index.scss'
 import Model from '@/components/Model'
 import Toast from '@/components/Toast'
-import {loadScript} from '@/utils/base'
+import {loadScript, createLock} from '@/utils/base'
+import {createStoreValue} from '@/hooks/useStore'
+import {waitGoBack} from '@/utils/ui'
 
 const T_NORMAL=0
 const T_HIDE=1
 
+const playModelState=createStoreValue(T_NORMAL)
+
 export default function(props) {
   const {sources, className=''}=props
-  const [stat, set_stat]=React.useState(T_NORMAL)
+  const stat=playModelState.useVal()
+
   return <div className={[
     '__view_scope',
     className,
@@ -22,26 +27,67 @@ export default function(props) {
       isDisabled={!sources}
       className='bi-play-fill'
       size='small'
-      onClick={async _=>{
-        set_stat(T_HIDE)
-        try{
-          const cancel=Toast.show(<div className='__view_scope-toast'>
-            <&=@/components/Loading isLoading />
-            Downloading babel sdk..
-          </div>, 99999999)
-          const [Comps, option]=await sources2ModelContent(sources)
-          Model.open(Comps, option)
-          cancel()
-          Toast.hide()
-          set_stat(T_NORMAL)
-        }catch(e) {
-          Toast.show(e.message)
-          set_stat(T_NORMAL)
-        }
-      }}
+      onClick={_=>openPlayModel(
+        <div className='__view_scope-toast'>
+          <&=@/components/Loading isLoading />
+          Downloading babel sdk..
+        </div>,
+        sources2ModelContent(sources),
+      )}
       text={'Run'}
     />
   </div>
+}
+
+const lock=createLock('PLAYBTN')
+async function openPlayModel(dlTip, mod) {
+  if(lock.locked()) return;
+  lock.lock()
+  setTimeout(_=>{
+    lock.unlock()
+  }, 1e3)
+  playModelState.set(T_HIDE)
+  const [cancelWait, onGoBacked, hasGoBackPromise]=waitGoBack()
+
+  let cancelled=false
+  const closeToast=Toast.show(dlTip, 99999999)
+  onGoBacked(_=>{
+    cancelled=true
+  })
+  try{
+    const [Comps, {onDestory, onOpen, isAlert}]=await mod
+
+    if(cancelled) {
+      throw new Error('cancelled')
+    }
+
+    if(isAlert) {
+      closeToast()
+      cancelWait()
+      onOpen()
+      setTimeout(_=>onDestory(), 1e3)
+      throw null
+    }
+
+    Model.open(Comps, {
+      onOpen: ModelApp=>{
+        closeToast()
+        onOpen(ModelApp)
+      },
+      onDestory: _=>{
+        cancelWait()
+        onDestory()
+      },
+    })
+    onGoBacked(_=>{
+      Model.close()
+    })
+
+  }catch(e) {
+    if(e!==null) Toast.show(e.message)
+  }
+
+  playModelState.set(T_NORMAL)
 }
 
 async function sources2ModelContent(sources) {
@@ -50,7 +96,7 @@ async function sources2ModelContent(sources) {
     return
   }
   try{
-    await loadScript('https://unpkg.com/@babel/standalone@7.26.4/babel.min.js')
+    await loadScript(window.__CDN_FILE_MAP__['babel.js'])
   }catch(e) {
     throw new Error('Emm.. some script files download failed.. :(')
     return
@@ -63,6 +109,20 @@ async function sources2ModelContent(sources) {
   }
   const Comps=[]
   let mainScript=null
+  const option={
+    onDestory: _=>{
+      if(mainScript) document.body.removeChild(mainScript)
+      for(const k in es_imports) {
+        URL.revokeObjectURL(es_imports[k])
+      }
+      delete window.ModelApp
+    },
+    onOpen: ModelApp=>{
+      if(ModelApp) window.ModelApp=ModelApp
+      if(mainScript) document.body.appendChild(mainScript)
+    },
+    isAlert: false,
+  }
 
   for(const s of sources) {
     if(['html'].includes(s.type)) {
@@ -93,20 +153,10 @@ async function sources2ModelContent(sources) {
       mainScript.innerHTML=_trans(s.value.replace(/const\s+app\s*=/, x=>{
         return `${x}window.ModelApp.current //`
       }))
+
+      if(s.alert) option.isAlert=true
     }
   }
 
-  return [Comps, {
-    onDestory: _=>{
-      if(mainScript) document.body.removeChild(mainScript)
-      for(const k in es_imports) {
-        URL.revokeObjectURL(es_imports[k])
-      }
-      delete window.ModelApp
-    },
-    onOpen: ModelApp=>{
-      window.ModelApp=ModelApp
-      if(mainScript) document.body.appendChild(mainScript)
-    },
-  }]
+  return [Comps, option]
 }

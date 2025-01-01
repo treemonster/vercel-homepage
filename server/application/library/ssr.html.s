@@ -5,14 +5,14 @@
   <link rel="icon" href="data:,">
   <base target='_blank' />
   <?js if(USE_ERUDA) { ?>
-    <script src='/assets/externals/js/eruda.min.js'></script>
+    <script src='<?js echo(__CDN_FILE_MAP__['eruda.js']) ?>'></script>
     <script>eruda.init();</script>
   <?js } ?>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,maximum-scale=1.0,viewport-fit=cover" />
   <meta charset=utf8 />
   <?js for(let css_link of css) { ?>
-    <link href='<?js echo(css_link) ?>' rel='stylesheet' type='text/css' />
+    <link href='<?js echo(css_link) ?>' crossorigin='anonymous' rel='stylesheet' type='text/css' />
   <?js } ?>
   <script>
   for(const css of document.querySelectorAll('link[rel=stylesheet]')) {
@@ -32,6 +32,7 @@
   <?js echo(extraDevHTMLCss) ?>
   <div class='app'>$${{ssrHTML}}</div>
   <script type='text/javascript'>
+    window.__CDN_FILE_MAP__=<?js echo(JSON.stringify(__CDN_FILE_MAP__)) ?>;
     window.__ssr_payload__=<?js echo(JSON.stringify(payload)) ?>;
   </script>
   <?js for(let js_link of js) { ?>

@@ -2,6 +2,8 @@ import {createStoreValue} from '@/hooks/useStore'
 import {buildUrl} from '@/utils/url'
 import {isNodeSide} from '@/utils/base'
 
+export const hookPopStateFunc={current: null}
+
 const HISTORY_VERSION=Date.now()
 const initActionType={
   t: 0,
@@ -15,7 +17,12 @@ const initActionType={
 const actionType=createStoreValue(_=>{
   if(!isNodeSide()) {
     window.addEventListener('popstate', e=>{
-      updateActionType(e.state || initActionType, false)
+      if(hookPopStateFunc.current) {
+        hookPopStateFunc.current()
+        hookPopStateFunc.current=null
+      }else{
+        updateActionType(e.state || initActionType, false)
+      }
     }, false)
   }
   return initActionType

@@ -17,7 +17,12 @@ if(!window.React) {
   window.ReactDOM=ReactDOM
   window.React=React
 }
-window.KAZE2024_JS_READY=true
+window.KAZE2024_JS_READY=window.ReactDOM &&
+  window.IntersectionObserver &&
+  window.React &&
+  window.marked &&
+  window.hljs &&
+  true
 window.APP_ROOT=appRoot
 
 ;(async _=>{

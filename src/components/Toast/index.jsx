@@ -16,7 +16,10 @@ export default mount((props)=>{
       set_toast({duration})
       set_newone(Math.random())
     }, 80)
-    return _=>clearTimeout(t)
+    return _=>{
+      clearTimeout(t)
+      handler.hide()
+    }
   }
   handler.hide=_=>{
     set_toast(null)

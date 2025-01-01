@@ -1,4 +1,4 @@
-import 'intersection-observer'
+
 import React from 'react'
 
 export default function(props) {

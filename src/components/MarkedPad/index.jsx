@@ -1,15 +1,11 @@
 import React from 'react'
 import './index.scss'
-import marked from 'marked/marked.min'
-import {loadScript, appendCssLink, isNodeSide} from '@/utils/base'
 
-if(!isNodeSide()) {
-  appendCssLink('https://unpkg.com/@highlightjs/cdn-assets@11.9.0/styles/github-dark.min.css')
-}
-
-const hljsReady=isNodeSide()?
-  new Promise(_=>{}):
-  loadScript('https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js')
+#ifdef IS_NODE_TARGET
+const marked=require('marked/marked.min')
+#else
+const marked=window.marked
+#endif
 
 marked.use({
   headerIds: false,
@@ -58,6 +54,7 @@ function parse(x) {
       play=play || _is(attrs.main)
       attrs.language=lang
       attrs.index=_is(attrs.index)
+      attrs.alert=_is(attrs.alert)
       attrs.main=_is(attrs.main)
       attrs.code=code.text.trim()
       const _filename=attrs.filename
@@ -83,7 +80,7 @@ function CodePanel(props) {
   React.useEffect(_=>{
     if(!codeRef.current) return;
     codeRef.current.removeAttribute('data-highlighted')
-    hljsReady.then(_=>window.hljs.highlightElement(codeRef.current))
+    window.hljs.highlightElement(codeRef.current)
   }, [index, codes])
   if(!code) return null
   return <div className='code-panel hljs'>
@@ -99,6 +96,7 @@ function CodePanel(props) {
         type: x.type,
         value: x.code,
         filename: x.filename,
+        alert: x.alert,
         main: x.main,
       }))} />}
     </div>}

@@ -8,6 +8,7 @@ setDebug(__IS_DEV__)
 if(__IS_DEV__) define('__DEV_WEB_DIR__', __dirname+'/..')
 define('__WEB__', __dirname+'/public')
 define('__PG_CONFIG__', __dirname+'/conf/pg.s')
+define('__CDN_FILE_MAP__', include(__dirname+'/conf/cdn.s').$cdnFileMap)
 define('__SSR_PAYLOAD_TIMEOUT__', 1e3)
 define('md5', x=>{
   return require('crypto').createHash('md5').update(x).digest('hex')
