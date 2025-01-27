@@ -1,13 +1,38 @@
 import React from 'react'
 import './index.scss'
+import {isSupportSticky} from '@/utils/ui'
 
 export default function(props) {
   const {
+    className='',
+    marginTop=0,
     children,
-    className,
+  }=props
+
+  const [sup, set_sup]=React.useState(true)
+  React.useEffect(_=>{
+    isSupportSticky().then(set_sup)
+  }, [])
+
+  if(sup) {
+    return <div className={className} style={{
+      position: 'sticky',
+      top: marginTop,
+    }}>
+      {children}
+    </div>
+  }
+
+  return <FixedDowngrade {...props} />
+
+}
+
+function FixedDowngrade(props) {
+  const {
+    className='',
     marginTop=0,
     scroller=document.scrollingElement,
-    watchChildrenChange=[],
+    children,
   }=props
 
   const wrapperRef=React.useRef(null)

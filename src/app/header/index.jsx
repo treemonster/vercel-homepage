@@ -26,22 +26,23 @@ export async function init(payload) {
 
 export default function() {
   const readOnly=appInfo.ReadOnly.useVal()
-  return <div className='__view_scope'>
+  return <AutoFixed
+    className='__view_scope'
+    scroller={window.APP_ROOT}
+  >
+  <div className='__view_scope'>
     <AppHeader />
     {!readOnly && <SupportEditor />}
   </div>
+  </AutoFixed>
 }
 
 function AppHeader(props) {
   const [headerText, set_headerText]=appInfo.HeaderText.use()
-  const editChange=appInfo.Editing.useVal()
-  return <AutoFixed
-    className='header'
-    scroller={window.APP_ROOT}
-    watchChildrenChange={[editChange]}
-  >
+  return <div className='header'>
     <div className='app-container'>
       <&=@/services/AppInfo
+        className='info'
         textStore={appInfo.HeaderText}
         action='/app/saveHeader'
       />
@@ -54,8 +55,7 @@ function AppHeader(props) {
         </div>
       </div>
     </div>
-  </AutoFixed>
-
+  </div>
 }
 
 function LeftMenu(props) {

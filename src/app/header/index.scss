@@ -117,3 +117,18 @@
     background: rgba(255, 255, 255, .5);
   }
 }
+
+
+@media (min-width:1024px) {
+  .__view_scope{
+    .app-container{
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-direction: row-reverse;
+      .info{
+        text-align: right;
+      }
+    }
+  }
+}

@@ -13,22 +13,20 @@ export async function asyncTaskWithToast({beginText, doneText}, task, cb) {
   }
 }
 
-export function waitGoBack() {
-  const {hookPopStateFunc}=historyAction
-  if(hookPopStateFunc.current) return;
-  const def=withResolvers()
-  history.pushState(history.state, null, location.href)
-  hookPopStateFunc.current=_=>{
-    def.resolve()
-  }
-  const curr=hookPopStateFunc.current
-  const onGoBacked=fn=>{
-    def.promise.then(fn)
-  }
-  const cancel=_=>{
-    if(curr!==hookPopStateFunc.current) return;
-    hookPopStateFunc.current=null
-    historyAction.goBack()
-  }
-  return [cancel, onGoBacked, def.promise]
+export async function isSupportSticky() {
+  const e=document.createElement('div')
+  e.style.cssText=`
+    position: sticky;
+    width: 0;
+    height: 0;
+    top: 200px;
+    left: 0;
+  `
+  document.body.insertBefore(e, document.body.childNodes[0])
+  return new Promise(resolve=>{
+    setTimeout(_=>{
+      resolve(e.offsetTop>=200)
+      document.body.removeChild(e)
+    }, 200)
+  })
 }

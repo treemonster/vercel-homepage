@@ -82,18 +82,3 @@ export function appendCssLink(src) {
     document.body.appendChild(css)
   }
 }
-
-const _locks={}
-export function createLock(key) {
-  return {
-    lock: _=>{
-      _locks[key]=true
-    },
-    unlock: _=>{
-      delete _locks[key]
-    },
-    locked: _=>{
-      return _locks[key]
-    },
-  }
-}
